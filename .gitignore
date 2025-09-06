@@ -1,0 +1,24 @@
+# Ignore everything
+*
+
+# But not these folders
+!FL-Agregations/
+!FL-MIA/
+!ML_CNN/
+!ML_RNN/
+
+# Keep their contents too
+!FL-Agregations/**
+!FL-MIA/**
+!ML_CNN/**
+!ML_RNN/**
+/FL-MIA/models/
+/FL-MIA/logs/
+/FL-MIA/visualizations/
+/FL-MIA/.gitignore
+/ML_CNN/models/
+/ML_CNN/results/
+/ML_CNN/visualizations/
+/ML_RNN/models/
+/ML_RNN/results/
+/ML_RNN/visualizations/

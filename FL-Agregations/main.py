@@ -1,13 +1,49 @@
 """
 Point d'entrée principal
 """
+import tensorflow as tf
+import os
+
+
+def configure_gpu():
+    """Configuration GPU avec gestion stricte de la mémoire"""
+    # Limiter la mémoire GPU disponible
+    os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            # Limiter drastiquement la mémoire GPU utilisable
+            tf.config.experimental.set_memory_limit(gpus[0], 1024)  # 1GB seulement
+            tf.config.experimental.set_memory_growth(gpus[0], True)
+
+            # Tester avec un tenseur simple
+            with tf.device('/GPU:0'):
+                test_tensor = tf.constant([1.0])
+                _ = test_tensor + 1.0
+
+            print(f"GPU configuré avec limite de 1GB: {gpus[0]}")
+            return True
+
+        except Exception as e:
+            print(f"GPU saturé, passage forcé au CPU: {e}")
+            # FORCER l'utilisation CPU si GPU saturé
+            tf.config.set_visible_devices([], 'GPU')
+            os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+            return False
+    else:
+        print("Aucun GPU détecté, utilisation CPU")
+        return False
+
+
+# Configurer avant tout
+configure_gpu()
 import argparse
 from data_preparation import prepare_federated_cifar10
 from aggregations import FedAvgAggregator, FedProxAggregator, ScaffoldAggregator
 from client import FederatedClient
 from server import FederatedServer
-from experiments.run_comparaison import compare_aggregation_methods
-
+from experiments.run_comparison import compare_aggregation_methods
 
 def main():
     parser = argparse.ArgumentParser(description='Apprentissage Fédéré')

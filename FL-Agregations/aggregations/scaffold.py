@@ -20,9 +20,18 @@ class ScaffoldAggregator(BaseAggregator):
         """Agrégation SCAFFOLD avec variables de contrôle"""
         start_time = time.time()
 
+        if not client_updates:
+            return global_model.get_weights()
+
         # Extraire les mises à jour et contrôles clients
-        model_updates = [update['model_update'] for update in client_updates]
-        control_updates = [update['control_update'] for update in client_updates]
+        if isinstance(client_updates[0], dict):
+            # Format SCAFFOLD correct
+            model_updates = [update['model_update'] for update in client_updates]
+            control_updates = [update['control_update'] for update in client_updates]
+        else:
+            print("Format simple détecté, traitement comme FedAvg")
+            model_updates = client_updates
+            control_updates = [[np.zeros_like(layer) for layer in update] for update in client_updates]
 
         # Moyenne pondérée des mises à jour
         aggregated_update = weighted_average(model_updates, client_weights)
@@ -45,6 +54,12 @@ class ScaffoldAggregator(BaseAggregator):
         comm_cost = self.get_communication_cost(client_updates)
         agg_time = time.time() - start_time
 
+        max_history = 100
+        if len(self.history['communication_costs']) >= max_history:
+            self.history['communication_costs'].pop(0)
+        if len(self.history['aggregation_times']) >= max_history:
+            self.history['aggregation_times'].pop(0)
+
         self.history['communication_costs'].append(comm_cost)
         self.history['aggregation_times'].append(agg_time)
 
@@ -55,6 +70,10 @@ class ScaffoldAggregator(BaseAggregator):
         local_weights = local_model.get_weights()
         global_weights = global_model.get_weights()
 
+        if len(self.client_controls) > 10:  # Limite
+            oldest_client = min(self.client_controls.keys())
+            del self.client_controls[oldest_client]
+
         # Initialiser le contrôle client si nécessaire
         if client_id not in self.client_controls:
             self.client_controls[client_id] = [np.zeros_like(w) for w in global_weights]
@@ -62,10 +81,12 @@ class ScaffoldAggregator(BaseAggregator):
         # Calculer la mise à jour du modèle
         model_update = subtract_weights(local_weights, global_weights)
 
+        server_control = self.server_control if self.server_control is not None else [np.zeros_like(w) for w in
+                                                                                      global_weights]
         # Calculer la mise à jour du contrôle
         control_update = subtract_weights(
             self.client_controls[client_id],
-            self.server_control if self.server_control else [np.zeros_like(w) for w in global_weights]
+            server_control
         )
 
         return {

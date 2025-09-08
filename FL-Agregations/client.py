@@ -15,11 +15,18 @@ class FederatedClient:
         self.aggregator = aggregator
         self.local_model = None
         self.global_model_ref = None
+        self.training_rounds_count = 0
         self.training_history = []
 
     def update_model(self, global_model):
         """Met à jour le modèle local avec le modèle global"""
-        self.local_model = copy_model(global_model)
+        if self.local_model is None:
+            # Première fois seulement
+            self.local_model = copy_model(global_model)
+        else:
+            # Juste copier les poids pour ne pas gaspier de mémoire
+            self.local_model.set_weights(global_model.get_weights())
+
         self.global_model_ref = global_model
 
     def train_local(self, epochs=LOCAL_EPOCHS):
@@ -42,6 +49,13 @@ class FederatedClient:
                 verbose=0,
                 validation_split=0.1
             )
+            # Incrémenter le compteur
+            self.training_rounds_count += 1
+
+            MAX_HISTORY_SIZE = 3  # Garder seulement les 3 derniers
+            if len(self.training_history) >= MAX_HISTORY_SIZE:
+                self.training_history.pop(0)
+
             self.training_history.append(history.history)
             trained_model = self.local_model
 
@@ -81,7 +95,7 @@ class FederatedClient:
             'data_size': self.get_data_size(),
             'class_distribution': self.get_class_distribution().tolist(),
             'local_accuracy': self.evaluate_local(),
-            'training_rounds': len(self.training_history)
+            'training_rounds': self.training_rounds_count
         }
 
 class RobustFederatedClient(FederatedClient):
@@ -123,6 +137,15 @@ class ResourceConstrainedClient(FederatedClient):
 
     def train_local(self, epochs=LOCAL_EPOCHS):
         """Entraînement adapté aux ressources"""
+
+        if self.local_model is None:
+            raise ValueError("Modèle local non initialisé")
+
+            # AJOUTER une validation des données
+        if len(self.x_train) == 0:
+            print(f"Client {self.client_id}: Aucune donnée d'entraînement")
+            return self.local_model
+
         # Ajuster les époques selon le budget de calcul
         adjusted_epochs = max(1, int(epochs * self.compute_budget))
 

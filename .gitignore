@@ -6,12 +6,14 @@
 !FL-MIA/
 !ML_CNN/
 !ML_RNN/
+!FL-MPC/
 
 # Keep their contents too
 !FL-Agregations/**
 !FL-MIA/**
 !ML_CNN/**
 !ML_RNN/**
+!FL-MPC/**
 /FL-MIA/models/
 /FL-MIA/logs/
 /FL-MIA/visualizations/
@@ -22,3 +24,6 @@
 /ML_RNN/models/
 /ML_RNN/results/
 /ML_RNN/visualizations/
+/FL-MPC/models/
+/FL-MPC/logs/
+/FL-MPC/visualizations/

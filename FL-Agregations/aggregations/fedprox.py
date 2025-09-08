@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from .base_aggregator import BaseAggregator, weighted_average, subtract_weights
 from config import FEDPROX_MU
+from config import BATCH_SIZE
 
 class FedProxAggregator(BaseAggregator):
     """Agrégateur FedProx avec terme de régularisation proximale"""
@@ -33,6 +34,12 @@ class FedProxAggregator(BaseAggregator):
         # Métriques
         comm_cost = self.get_communication_cost(client_updates)
         agg_time = time.time() - start_time
+
+        max_history = 100
+        if len(self.history['communication_costs']) >= max_history:
+            self.history['communication_costs'].pop(0)
+        if len(self.history['aggregation_times']) >= max_history:
+            self.history['aggregation_times'].pop(0)
 
         self.history['communication_costs'].append(comm_cost)
         self.history['aggregation_times'].append(agg_time)
@@ -90,7 +97,7 @@ class FedProxAggregator(BaseAggregator):
         client_model.fit(
             x_train, y_train,
             epochs=epochs,
-            batch_size=32,
+            batch_size=BATCH_SIZE,
             verbose=0
         )
 

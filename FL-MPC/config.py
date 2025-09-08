@@ -1,6 +1,7 @@
 """
-Configuration globale pour les expériences d'agrégation fédérée
+Configuration pour FL-MPC
 """
+
 import os
 
 # Configuration des données
@@ -44,3 +45,11 @@ CIFAR_LABELS = [
     'airplane', 'automobile', 'bird', 'cat', 'deer',
     'dog', 'frog', 'horse', 'ship', 'truck'
 ]
+
+# Paramètres spécifiques MPC
+MPC_THRESHOLD = 3  # Seuil pour secret sharing
+MPC_FIELD_SIZE = 2**31 - 1  # Taille du corps fini
+MPC_PRECISION = 16  # Précision pour nombres à virgule fixe
+
+# Sécurité
+BYZANTINE_TOLERANCE = 1  # Nombre de clients byzantins tolérés

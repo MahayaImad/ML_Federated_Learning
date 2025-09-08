@@ -30,15 +30,22 @@ def compare_aggregation_methods(fed_data, test_data):
 
     return results
 
+
 def calculate_convergence_rate(metrics):
-    """Calcule le taux de convergence"""
-    accuracies = metrics['test_accuracy']
-    return np.mean(np.diff(accuracies[:20])) if len(accuracies) > 20 else 0
+    """Calcule le taux de convergence avec vérification"""
+    accuracies = metrics.get('test_accuracy', [])
+    if len(accuracies) > 20:
+        return np.mean(np.diff(accuracies[:20]))
+    elif len(accuracies) > 1:
+        return np.mean(np.diff(accuracies))
+    else:
+        return 0.0
 
 
 def calculate_communication_cost(metrics):
-    """Calcule le coût de communication"""
-    return sum(metrics.get('communication_costs', []))
+    """Calcule le coût de communication avec vérification"""
+    costs = metrics.get('communication_costs', [])
+    return sum(costs) if costs else 0.0
 
 
 def compare_aggregation_methods(fed_data, test_data, model_type="standard"):
@@ -60,10 +67,11 @@ def compare_aggregation_methods(fed_data, test_data, model_type="standard"):
 
         model, metrics = server.train_federated(clients, test_data)
 
+        final_accuracy = metrics['test_accuracy'][-1] if metrics['test_accuracy'] else 0.0
+
         results[method_name] = {
-            'final_accuracy': metrics['test_accuracy'][-1],
+            'final_accuracy': final_accuracy,
             'convergence_rate': calculate_convergence_rate(metrics),
             'communication_cost': calculate_communication_cost(metrics)
         }
-
     return results

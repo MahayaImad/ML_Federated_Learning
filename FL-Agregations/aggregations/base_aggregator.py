@@ -3,12 +3,12 @@ Classe de base pour tous les agrégateurs
 """
 import numpy as np
 from abc import ABC, abstractmethod
-
+from typing import List, Dict, Any, Optional
 
 class BaseAggregator(ABC):
     """Classe abstraite pour les agrégateurs fédérés"""
 
-    def __init__(self, name="BaseAggregator"):
+    def __init__(self, name: str = "BaseAggregator"):
         self.name = name
         self.round_number = 0
         self.history = {

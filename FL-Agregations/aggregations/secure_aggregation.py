@@ -50,6 +50,12 @@ class SecureAggregator(BaseAggregator):
         comm_cost = self.get_communication_cost(client_updates)
         agg_time = time.time() - start_time
 
+        max_history = 100
+        if len(self.history['communication_costs']) >= max_history:
+            self.history['communication_costs'].pop(0)
+        if len(self.history['aggregation_times']) >= max_history:
+            self.history['aggregation_times'].pop(0)
+
         self.history['communication_costs'].append(comm_cost)
         self.history['aggregation_times'].append(agg_time)
 
@@ -153,6 +159,12 @@ class DifferentialPrivacyAggregator(BaseAggregator):
         # Métriques
         comm_cost = self.get_communication_cost(client_updates)
         agg_time = time.time() - start_time
+
+        max_history = 100
+        if len(self.history['communication_costs']) >= max_history:
+            self.history['communication_costs'].pop(0)
+        if len(self.history['aggregation_times']) >= max_history:
+            self.history['aggregation_times'].pop(0)
 
         self.history['communication_costs'].append(comm_cost)
         self.history['aggregation_times'].append(agg_time)

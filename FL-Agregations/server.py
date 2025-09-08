@@ -30,7 +30,7 @@ class FederatedServer:
         """Sélectionne les clients pour ce tour"""
         if self.client_selection_strategy == "random":
             num_selected = max(1, int(len(clients) * selection_ratio))
-            return np.random.choice(clients, num_selected, replace=False)
+            return list(np.random.choice(clients, num_selected, replace=False))
         elif self.client_selection_strategy == "all":
             return clients
         elif self.client_selection_strategy == "available":
@@ -72,6 +72,8 @@ class FederatedServer:
 
         if not client_updates:
             print("Aucune mise à jour reçue - tour ignoré")
+            self.metrics['test_accuracy'].append(
+                self.metrics['test_accuracy'][-1] if self.metrics['test_accuracy'] else 0.0)
             return self.evaluate(test_data)
 
         # Agrégation

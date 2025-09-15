@@ -281,3 +281,163 @@ def plot_edge_metrics(metrics, args, plot_path):
     axes[1, 2].text(0.1, 0.9, f'🎯 Scénario: {args.scenario.upper()}',
                     fontsize=14, fontweight='bold', transform=axes[1, 2].transAxes)
     axes[1, 2].text(0.1, 0.8, scenario_info, fontsize=10, transform=axes[1, 2].transAxes
+
+    def calculate_edge_efficiency_score(metrics, args):
+        """Calcule un score d'efficacité edge"""
+
+    if not metrics or not metrics.get('accuracy_per_round'):
+        return 0.0
+
+    final_accuracy = metrics['accuracy_per_round'][-1] if metrics['accuracy_per_round'] else 0
+    avg_energy = np.mean(metrics.get('energy_consumption', [0]))
+    avg_latency = np.mean(metrics.get('network_latencies', [0]))
+
+    # Score pondéré
+    accuracy_score = final_accuracy * 4  # 40%
+    energy_score = max(0, 3 - avg_energy / 100) * 3  # 30%
+    latency_score = max(0, 3 - avg_latency / 100) * 3  # 30%
+
+    return min(10, accuracy_score + energy_score + latency_score)
+
+
+def analyze_efficiency_breakdown(metrics, args):
+    """Analyse détaillée de l'efficacité"""
+    return {
+        'accuracy_trend': 'increasing' if len(metrics.get('accuracy_per_round', [])) > 1 and
+                                          metrics['accuracy_per_round'][-1] > metrics['accuracy_per_round'][
+                                              0] else 'stable',
+        'energy_efficiency': 'good' if np.mean(metrics.get('energy_consumption', [0])) < 200 else 'poor',
+        'network_performance': 'good' if np.mean(metrics.get('network_latencies', [0])) < 100 else 'poor'
+    }
+
+
+def get_scenario_insights(metrics, args):
+    """Insights spécifiques au scénario"""
+    insights = {
+        'iot': 'Optimisé pour faible consommation',
+        'mobile': 'Performance variable selon mobilité',
+        'vehicular': 'Défis de connectivité en mouvement',
+        'healthcare': 'Priorité à la fiabilité',
+        'smart_city': 'Gestion de la diversité des dispositifs',
+        'industrial': 'Haute fiabilité requise'
+    }
+    return insights.get(args.scenario, 'Analyse générale')
+
+
+# Ajoutez aussi cette fonction pour compléter les visualisations
+def complete_edge_visualizations(metrics, axes, rounds):
+    """Complète les visualisations edge"""
+    # 3. Latences réseau
+    if metrics.get('network_latencies'):
+        axes[0, 2].plot(rounds, metrics['network_latencies'], 'g-', linewidth=2, marker='^')
+        axes[0, 2].set_title('Latences Réseau', fontsize=14, fontweight='bold')
+        axes[0, 2].set_xlabel('Round FL')
+        axes[0, 2].set_ylabel('Latence (ms)')
+        axes[0, 2].grid(True, alpha=0.3)
+
+    # 4. Participation des dispositifs
+    if metrics.get('device_participation'):
+        axes[1, 0].plot(rounds, metrics['device_participation'], 'm-', linewidth=2, marker='d')
+        axes[1, 0].set_title('Participation Dispositifs', fontsize=14, fontweight='bold')
+        axes[1, 0].set_xlabel('Round FL')
+        axes[1, 0].set_ylabel('Nombre de dispositifs')
+        axes[1, 0].grid(True, alpha=0.3)
+
+    # 5. Niveaux de batterie
+    if metrics.get('battery_levels'):
+        axes[1, 1].plot(rounds, metrics['battery_levels'], 'orange', linewidth=2, marker='o')
+        axes[1, 1].set_title('Niveaux de Batterie Moyens', fontsize=14, fontweight='bold')
+        axes[1, 1].set_xlabel('Round FL')
+        axes[1, 1].set_ylabel('Batterie (%)')
+        axes[1, 1].grid(True, alpha=0.3)
+        axes[1, 1].set_ylim(0, 100)
+
+    # 6. Dropouts de dispositifs
+    if metrics.get('device_dropouts'):
+        axes[1, 2].plot(rounds, metrics['device_dropouts'], 'red', linewidth=2, marker='x')
+        axes[1, 2].set_title('Dispositifs Déconnectés', fontsize=14, fontweight='bold')
+        axes[1, 2].set_xlabel('Round FL')
+        axes[1, 2].set_ylabel('Nombre de dropouts')
+        axes[1, 2].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+
+
+def calculate_edge_efficiency_score(metrics, args):
+    """Calcule un score d'efficacité edge"""
+    if not metrics or not metrics.get('accuracy_per_round'):
+        return 0.0
+
+    final_accuracy = metrics['accuracy_per_round'][-1] if metrics['accuracy_per_round'] else 0
+    avg_energy = np.mean(metrics.get('energy_consumption', [0]))
+    avg_latency = np.mean(metrics.get('network_latencies', [0]))
+
+    # Score pondéré
+    accuracy_score = final_accuracy * 4  # 40%
+    energy_score = max(0, 3 - avg_energy / 100) * 3  # 30%
+    latency_score = max(0, 3 - avg_latency / 100) * 3  # 30%
+
+    return min(10, accuracy_score + energy_score + latency_score)
+
+
+def analyze_efficiency_breakdown(metrics, args):
+    """Analyse détaillée de l'efficacité"""
+    return {
+        'accuracy_trend': 'increasing' if len(metrics.get('accuracy_per_round', [])) > 1 and
+                                          metrics['accuracy_per_round'][-1] > metrics['accuracy_per_round'][
+                                              0] else 'stable',
+        'energy_efficiency': 'good' if np.mean(metrics.get('energy_consumption', [0])) < 200 else 'poor',
+        'network_performance': 'good' if np.mean(metrics.get('network_latencies', [0])) < 100 else 'poor'
+    }
+
+
+def get_scenario_insights(metrics, args):
+    """Insights spécifiques au scénario"""
+    insights = {
+        'iot': 'Optimisé pour faible consommation',
+        'mobile': 'Performance variable selon mobilité',
+        'vehicular': 'Défis de connectivité en mouvement',
+        'healthcare': 'Priorité à la fiabilité',
+        'smart_city': 'Gestion de la diversité des dispositifs',
+        'industrial': 'Haute fiabilité requise'
+    }
+    return insights.get(args.scenario, 'Analyse générale')
+
+
+# Ajoutez aussi cette fonction pour compléter les visualisations
+def complete_edge_visualizations(metrics, axes, rounds):
+    """Complète les visualisations edge"""
+    # 3. Latences réseau
+    if metrics.get('network_latencies'):
+        axes[0, 2].plot(rounds, metrics['network_latencies'], 'g-', linewidth=2, marker='^')
+        axes[0, 2].set_title('Latences Réseau', fontsize=14, fontweight='bold')
+        axes[0, 2].set_xlabel('Round FL')
+        axes[0, 2].set_ylabel('Latence (ms)')
+        axes[0, 2].grid(True, alpha=0.3)
+
+    # 4. Participation des dispositifs
+    if metrics.get('device_participation'):
+        axes[1, 0].plot(rounds, metrics['device_participation'], 'm-', linewidth=2, marker='d')
+        axes[1, 0].set_title('Participation Dispositifs', fontsize=14, fontweight='bold')
+        axes[1, 0].set_xlabel('Round FL')
+        axes[1, 0].set_ylabel('Nombre de dispositifs')
+        axes[1, 0].grid(True, alpha=0.3)
+
+    # 5. Niveaux de batterie
+    if metrics.get('battery_levels'):
+        axes[1, 1].plot(rounds, metrics['battery_levels'], 'orange', linewidth=2, marker='o')
+        axes[1, 1].set_title('Niveaux de Batterie Moyens', fontsize=14, fontweight='bold')
+        axes[1, 1].set_xlabel('Round FL')
+        axes[1, 1].set_ylabel('Batterie (%)')
+        axes[1, 1].grid(True, alpha=0.3)
+        axes[1, 1].set_ylim(0, 100)
+
+    # 6. Dropouts de dispositifs
+    if metrics.get('device_dropouts'):
+        axes[1, 2].plot(rounds, metrics['device_dropouts'], 'red', linewidth=2, marker='x')
+        axes[1, 2].set_title('Dispositifs Déconnectés', fontsize=14, fontweight='bold')
+        axes[1, 2].set_xlabel('Round FL')
+        axes[1, 2].set_ylabel('Nombre de dropouts')
+        axes[1, 2].grid(True, alpha=0.3)
+
+    plt.tight_layout()

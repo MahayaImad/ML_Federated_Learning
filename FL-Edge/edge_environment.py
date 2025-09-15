@@ -357,4 +357,104 @@ class EdgeEnvironment:
         stress_factors.append(weather_stress[self.weather_condition])
 
         # Stress de congestion réseau
-        stress_factors.append(self.
+        stress_factors.append(self.network_congestion)
+
+        # Stress d'interférence électromagnétique
+        stress_factors.append(self.electromagnetic_interference)
+
+        # Stress de densité des dispositifs
+        active_devices = [d for d in devices if d.current_load > 0]
+        device_density_stress = len(active_devices) / max(len(devices), 1)
+        stress_factors.append(device_density_stress * 0.5)
+
+        # Stress de batterie globale
+        battery_levels = [d.battery_level for d in devices if d.specs['battery_capacity'] != float('inf')]
+        if battery_levels:
+            avg_battery = np.mean(battery_levels) / 100.0
+            battery_stress = 1.0 - avg_battery  # Plus la batterie est faible, plus le stress est élevé
+            stress_factors.append(battery_stress * 0.3)
+
+        # Stress temporel (heures de pointe)
+        hour = (self.current_time / 60) % 24
+        if 8 <= hour <= 10 or 17 <= hour <= 19:  # Heures de pointe
+            stress_factors.append(0.4)
+        else:
+            stress_factors.append(0.1)
+
+        # Calcul du stress global (moyenne pondérée)
+        global_stress = np.mean(stress_factors)
+
+        return min(1.0, global_stress)  # Limiter à 1.0 maximum
+
+
+    def _update_weather(self):
+        """Mise à jour des conditions météorologiques"""
+        weather_transitions = {
+            'clear': ['clear', 'cloudy'],
+            'cloudy': ['clear', 'cloudy', 'rainy'],
+            'rainy': ['cloudy', 'rainy', 'stormy'],
+            'stormy': ['rainy', 'cloudy']
+        }
+
+        if random.random() < 0.05:  # 5% chance de changement
+            self.weather_condition = random.choice(
+                weather_transitions[self.weather_condition]
+            )
+
+            # Impact sur le réseau
+            weather_network_impact = {
+                'clear': 1.0, 'cloudy': 0.95, 'rainy': 0.8, 'stormy': 0.5
+            }
+            self.weather_network_factor = weather_network_impact[self.weather_condition]
+
+    def _update_network_conditions(self):
+        """Met à jour les conditions réseau globales"""
+        # Congestion variable selon l'heure
+        hour = (self.current_time / 60) % 24
+        if 8 <= hour <= 10 or 17 <= hour <= 19:  # Heures de pointe
+            base_congestion = 0.7
+        else:
+            base_congestion = 0.3
+
+        self.network_congestion = base_congestion + random.uniform(-0.2, 0.2)
+        self.network_congestion = np.clip(self.network_congestion, 0.0, 1.0)
+
+    def _process_special_events(self, devices):
+        """Traite les événements spéciaux"""
+        for event in self.special_events:
+            if random.random() < event['probability']:
+                print(f"🚨 Événement: {event['type']}")
+                self._apply_event_impact(event, devices)
+
+    def _apply_event_impact(self, event, devices):
+        """Applique l'impact d'un événement"""
+        if event['type'] == 'power_outage':
+            affected = random.sample(devices, k=min(3, len(devices)))
+            for device in affected:
+                device.battery_level *= 0.5
+        elif event['type'] == 'network_congestion':
+            for device in devices:
+                device.network_quality *= 0.7
+
+    def _update_device_mobility(self, devices):
+        """Met à jour la position des dispositifs mobiles"""
+        if self.mobility_level == 'static':
+            return
+
+        mobility_factor = {'low': 0.1, 'medium': 0.3, 'high': 0.5}[self.mobility_level]
+
+        for device in devices:
+            if device.specs.get('mobile', False):
+                # Déplacement aléatoire
+                if 'position' not in device.location:
+                    device.location['position'] = [0.0, 0.0]
+
+                device.location['position'][0] += random.uniform(-mobility_factor, mobility_factor)
+                device.location['position'][1] += random.uniform(-mobility_factor, mobility_factor)
+
+    def _update_zone_conditions(self):
+        """Met à jour les conditions par zone"""
+        for zone_name, zone_props in self.zones.items():
+            # Variation de qualité réseau
+            base_quality = zone_props['network_quality_base']
+            zone_props['current_network_quality'] = base_quality * self.weather_network_factor

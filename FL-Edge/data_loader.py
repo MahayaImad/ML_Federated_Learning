@@ -435,4 +435,59 @@ def distribute_industrial_data(x_data, y_data, devices):
 
                 if dev_start < len(line_x):
                     device_data[device_id] = (
-                        line_x[dev_
+                        line_x[dev_start:dev_end],
+                        line_y[dev_start:dev_end]
+                    )
+
+    # Gestion des dispositifs sans ligne assignée
+    unassigned_devices = []
+    for device in devices:
+        if device.device_id not in device_data:
+            unassigned_devices.append(device.device_id)
+
+    # Distribuer le reste des données aux dispositifs non assignés
+    if unassigned_devices and len(device_data) < len(devices):
+        remaining_mask = ~np.isin(y_data, [cls for line_classes in
+                                           [np.unique(y_data[np.isin(y_data, line_classes)])
+                                            for line_classes in [np.random.choice(np.unique(y_data),
+                                                                                  size=min(2, len(np.unique(y_data))),
+                                                                                  replace=False)]]
+                                           for cls in line_classes])
+
+        # Simplification: prendre les données restantes
+        remaining_indices = np.where(~np.array([i in device_data.values() for i in range(len(x_data))]))[0]
+
+        if len(remaining_indices) > 0:
+            remaining_x = x_data[remaining_indices]
+            remaining_y = y_data[remaining_indices]
+
+            data_per_unassigned = len(remaining_x) // len(unassigned_devices) if unassigned_devices else 0
+
+            for i, device_id in enumerate(unassigned_devices):
+                start_idx = i * data_per_unassigned
+                end_idx = min(start_idx + data_per_unassigned, len(remaining_x))
+
+                if start_idx < len(remaining_x):
+                    device_data[device_id] = (
+                        remaining_x[start_idx:end_idx],
+                        remaining_y[start_idx:end_idx]
+                    )
+
+    return device_data
+
+
+def distribute_default_data(x_data, y_data, devices):
+    """Distribution par défaut équitable"""
+    device_data = {}
+    data_per_device = len(x_data) // len(devices)
+
+    for i, device in enumerate(devices):
+        start_idx = i * data_per_device
+        end_idx = start_idx + data_per_device if i < len(devices) - 1 else len(x_data)
+
+        device_data[device.device_id] = (
+            x_data[start_idx:end_idx],
+            y_data[start_idx:end_idx]
+        )
+
+    return device_data

@@ -23,8 +23,27 @@ class FedOptAggregator(BaseAggregator):
         """Agrégation avec optimiseur adaptatif"""
         start_time = time.time()
 
-        # Moyenne pondérée des mises à jour
-        aggregated_update = weighted_average(client_updates, client_weights)
+        # Validation des updates
+        valid_updates = []
+        valid_weights = []
+
+        for i, (update, weight) in enumerate(zip(client_updates, client_weights)):
+            try:
+                if isinstance(update, list) and all(hasattr(layer, 'shape') for layer in update):
+                    valid_updates.append(update)
+                    valid_weights.append(weight)
+                else:
+                    print(f"Update invalide pour client {i}: {type(update)}")
+            except Exception as e:
+                print(f"Erreur validation client {i}: {e}")
+                continue
+
+        if not valid_updates:
+            print("Aucune mise à jour valide pour FedOpt")
+            return global_model.get_weights()
+
+        # Moyenne pondérée des mises à jour valides
+        aggregated_update = weighted_average(valid_updates, valid_weights)
 
         # Initialiser les moments si nécessaire
         if self.m is None:

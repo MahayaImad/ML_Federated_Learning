@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Importer FL classique
-sys.path.append('../FL-Agregations')
+sys.path.append('../FL_Agregations')
 from aggregations import FedAvgAggregator
 from client import FederatedClient as ClassicClient
 from server import FederatedServer as ClassicServer

@@ -61,11 +61,31 @@ class BaseAggregator(ABC):
         }
 
     def get_communication_cost(self, client_updates):
-        """Calcule le coût de communication"""
+        """Calcule le coût de communication avec gestion robuste des formats"""
         total_params = 0
-        for update in client_updates:
-            for layer_update in update:
-                total_params += np.prod(layer_update.shape)
+
+        try:
+            for update in client_updates:
+                if isinstance(update, dict):
+                    # Format SCAFFOLD ou autres avec dictionnaire
+                    for key, value in update.items():
+                        if isinstance(value, list):
+                            for item in value:
+                                if hasattr(item, 'shape') and hasattr(item, 'size'):
+                                    total_params += item.size
+                elif isinstance(update, list):
+                    # Format standard (liste de numpy arrays)
+                    for layer_update in update:
+                        if hasattr(layer_update, 'shape') and hasattr(layer_update, 'size'):
+                            total_params += layer_update.size
+                elif hasattr(update, 'shape') and hasattr(update, 'size'):
+                    # Cas d'un seul array
+                    total_params += update.size
+
+        except Exception as e:
+            print(f"Erreur calcul communication cost: {e}")
+            return 0
+
         return total_params
 
     def get_stats(self):

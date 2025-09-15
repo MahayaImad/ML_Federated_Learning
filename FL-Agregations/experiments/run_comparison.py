@@ -1,32 +1,50 @@
 """
 Comparaison des différentes méthodes d'agrégation
 """
-from aggregations import FedAvgAggregator, FedProxAggregator, ScaffoldAggregator
+from aggregations import (FedAvgAggregator, FedProxAggregator, ScaffoldAggregator,
+                         FedOptAggregator)
 from client import FederatedClient
 from server import FederatedServer
 import numpy as np
 
-def compare_aggregation_methods(fed_data, test_data):
+
+def compare_aggregation_methods(fed_data, test_data, model_type="standard"):
+
     methods = {
         'FedAvg': FedAvgAggregator(),
         'FedProx': FedProxAggregator(mu=0.01),
         'SCAFFOLD': ScaffoldAggregator(),
+        'FedOpt-Adam': FedOptAggregator(optimizer_type="adam"),
     }
-
     results = {}
 
     for method_name, aggregator in methods.items():
         print(f"\n=== Testing {method_name} ===")
 
-        model, metrics = train_federated_with_aggregator(
-            aggregator, fed_data, test_data
-        )
+        try:
+            clients = [FederatedClient(i, data, aggregator)
+                       for i, data in enumerate(fed_data)]
+            server = FederatedServer(aggregator, model_type)
 
-        results[method_name] = {
-            'final_accuracy': metrics['test_accuracy'][-1],
-            'convergence_rate': calculate_convergence_rate(metrics),
-            'communication_cost': calculate_communication_cost(metrics)
-        }
+            model, metrics = server.train_federated(clients, test_data)
+
+            final_accuracy = metrics['test_accuracy'][-1] if metrics['test_accuracy'] else 0.0
+
+            results[method_name] = {
+                'final_accuracy': final_accuracy,
+                'convergence_rate': calculate_convergence_rate(metrics),
+                'communication_cost': calculate_communication_cost(metrics)
+            }
+
+            print(f"{method_name} terminé - Précision: {final_accuracy:.4f}")
+
+        except Exception as e:
+            print(f"Erreur avec {method_name}: {e}")
+            results[method_name] = {
+                'final_accuracy': 0.0,
+                'convergence_rate': 0.0,
+                'communication_cost': 0.0
+            }
 
     return results
 
@@ -47,31 +65,3 @@ def calculate_communication_cost(metrics):
     costs = metrics.get('communication_costs', [])
     return sum(costs) if costs else 0.0
 
-
-def compare_aggregation_methods(fed_data, test_data, model_type="standard"):
-    """Comparaison complète"""
-    methods = {
-        'FedAvg': FedAvgAggregator(),
-        'FedProx': FedProxAggregator(),
-        'SCAFFOLD': ScaffoldAggregator(),
-    }
-
-    results = {}
-
-    for method_name, aggregator in methods.items():
-        print(f"\n=== Testing {method_name} ===")
-
-        clients = [FederatedClient(i, data, aggregator)
-                   for i, data in enumerate(fed_data)]
-        server = FederatedServer(aggregator, model_type)
-
-        model, metrics = server.train_federated(clients, test_data)
-
-        final_accuracy = metrics['test_accuracy'][-1] if metrics['test_accuracy'] else 0.0
-
-        results[method_name] = {
-            'final_accuracy': final_accuracy,
-            'convergence_rate': calculate_convergence_rate(metrics),
-            'communication_cost': calculate_communication_cost(metrics)
-        }
-    return results

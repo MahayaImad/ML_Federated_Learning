@@ -14,7 +14,7 @@ NUM_CLASSES = 10
 # Configuration d'entraînement
 COMMUNICATION_ROUNDS = 50
 LOCAL_EPOCHS = 3
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 LEARNING_RATE = 0.001
 
 # Configuration des agrégations

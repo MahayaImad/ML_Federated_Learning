@@ -4,6 +4,8 @@
 
 Ce projet implémente l'apprentissage fédéré avec calcul multipartite sécurisé (MPC) et le compare avec l'apprentissage fédéré classique. Il utilise le dataset CIFAR-10 pour l'évaluation des performances.
 
+Cette Methode est bien expliquée dans cette vidéo : https://www.youtube.com/watch?v=zrmMmq9N9FY
+
 ## Objectifs
 
 - **Sécurité renforcée** : Protection des mises à jour des clients via secret sharing
@@ -17,8 +19,8 @@ Ce projet implémente l'apprentissage fédéré avec calcul multipartite sécuri
 FL-MPC/
 ├── README.md
 ├── config.py                 # Configuration globale
-├── data_preparation.py       # Préparation des données (copié de FL-Agregations)
-├── models.py                 # Modèles CNN (copié de FL-Agregations)
+├── data_preparation.py       # Préparation des données (copié de FL_Agregations)
+├── models.py                 # Modèles CNN (copié de FL_Agregations)
 ├── client.py                 # Client MPC
 ├── server.py                 # Serveur MPC
 ├── main.py                   # Point d'entrée principal
@@ -30,7 +32,6 @@ FL-MPC/
 ├── comparison/               # Outils de comparaison
 │   ├── __init__.py
 │   └── fl_vs_mpc.py          # Comparaison FL vs FL-MPC
-├── results/                  # Résultats d'expériences
 ├── plots/                    # Graphiques générés
 └── results/                  # résultats d'exécution
 ```
@@ -49,8 +50,8 @@ FL-MPC/
 # Installer les dépendances
 pip install tensorflow numpy matplotlib scikit-learn
 
-# Vérifier que FL-Agregations est disponible dans le répertoire parent
-ls ../FL-Agregations/
+# Vérifier que FL_Agregations est disponible dans le répertoire parent
+ls ../FL_Agregations/
 ```
 
 ## Concepts techniques

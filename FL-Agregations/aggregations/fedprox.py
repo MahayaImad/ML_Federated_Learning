@@ -67,33 +67,11 @@ class FedProxAggregator(BaseAggregator):
         Returns:
             trained_model: Modèle entraîné
         """
+
+        # Sauvegarder les poids globaux
         global_weights = global_model.get_weights()
 
-        # Fonction de perte personnalisée avec terme proximal
-        def proximal_loss(y_true, y_pred):
-            # Perte standard
-            ce_loss = tf.keras.losses.categorical_crossentropy(y_true, y_pred)
-
-            # Terme de régularisation proximale
-            proximal_term = 0.0
-            current_weights = client_model.get_weights()
-
-            for current_w, global_w in zip(current_weights, global_weights):
-                diff = current_w - global_w
-                proximal_term += tf.reduce_sum(tf.square(diff))
-
-            proximal_term *= self.mu / 2.0
-
-            return ce_loss + proximal_term
-
-        # Compiler avec la nouvelle fonction de perte
-        client_model.compile(
-            optimizer=client_model.optimizer,
-            loss=proximal_loss,
-            metrics=['accuracy']
-        )
-
-        # Entraînement
+        # Entraînement standard
         client_model.fit(
             x_train, y_train,
             epochs=epochs,
@@ -101,7 +79,17 @@ class FedProxAggregator(BaseAggregator):
             verbose=0
         )
 
+        # Appliquer la régularisation proximale après l'entraînement
+        current_weights = client_model.get_weights()
+        for i, (current_w, global_w) in enumerate(zip(current_weights, global_weights)):
+            # Interpolation vers les poids globaux
+            regularized_w = current_w - self.mu * (current_w - global_w)
+            current_weights[i] = regularized_w
+
+        client_model.set_weights(current_weights)
+
         return client_model
+
 
 class AdaptiveFedProxAggregator(FedProxAggregator):
     """FedProx avec adaptation automatique du paramètre mu"""

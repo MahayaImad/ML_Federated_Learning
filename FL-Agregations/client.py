@@ -118,14 +118,19 @@ class RobustFederatedClient(FederatedClient):
                     return self.local_model
 
     def get_update(self, global_model):
-        """Mise à jour avec gestion d'erreurs"""
-        try:
-            return super().get_update(global_model)
-        except Exception as e:
-            print(f"Client {self.client_id}: Erreur de mise à jour: {e}")
-            # Retourner une mise à jour vide en cas d'erreur
-            weights = global_model.get_weights()
-            return [np.zeros_like(w) for w in weights]
+        """Récupère la mise à jour pour le serveur"""
+        # Vérifier si l'agrégateur a une méthode spécialisée
+        if hasattr(self.aggregator, 'prepare_client_update'):
+            return self.aggregator.prepare_client_update(
+                self.client_id, self.local_model, global_model
+            )
+        else:
+            # Fallback vers FedAvg standard
+            from aggregations.base_aggregator import subtract_weights
+            local_weights = self.local_model.get_weights()
+            global_weights = global_model.get_weights()
+            return subtract_weights(local_weights, global_weights)
+
 
 class ResourceConstrainedClient(FederatedClient):
     """Client avec contraintes de ressources"""

@@ -23,15 +23,22 @@ class ScaffoldAggregator(BaseAggregator):
         if not client_updates:
             return global_model.get_weights()
 
-        # Extraire les mises à jour et contrôles clients
-        if isinstance(client_updates[0], dict):
-            # Format SCAFFOLD correct
-            model_updates = [update['model_update'] for update in client_updates]
-            control_updates = [update['control_update'] for update in client_updates]
-        else:
-            print("Format simple détecté, traitement comme FedAvg")
-            model_updates = client_updates
-            control_updates = [[np.zeros_like(layer) for layer in update] for update in client_updates]
+        # Extraire les mises à jour et contrôles clients avec vérification
+        model_updates = []
+        control_updates = []
+
+        for update in client_updates:
+            if isinstance(update, dict) and 'model_update' in update:
+                # Format SCAFFOLD correct
+                model_updates.append(update['model_update'])
+                control_updates.append(update['control_update'])
+            else:
+                # Format simple, traitement comme FedAvg
+                print("Format simple détecté, traitement comme FedAvg")
+                model_updates.append(update)
+                # Créer des contrôles zéro pour ce client
+                zero_control = [np.zeros_like(layer) for layer in update]
+                control_updates.append(zero_control)
 
         # Moyenne pondérée des mises à jour
         aggregated_update = weighted_average(model_updates, client_weights)

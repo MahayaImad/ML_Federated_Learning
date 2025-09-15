@@ -95,9 +95,6 @@ python main.py --method compare
 - Optimiseurs adaptatifs côté serveur
 - Améliore la convergence avec moments adaptatifs
 
-### 5. **Agrégation Sécurisée**
-- Confidentialité différentielle (ε,δ)-DP
-- Simulation d'agrégation sécurisée multi-parties
 
 ## ⚙️ Configuration
 

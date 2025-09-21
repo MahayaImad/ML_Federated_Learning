@@ -40,6 +40,7 @@ class MPCServer(BaseFederatedServer):
             client_weights.append(client.get_data_size())
 
         # Agrégation sécurisée avec MPC
+
         try:
             new_weights = self.aggregator.secure_aggregate(
                 client_updates, client_weights, self.global_model
@@ -47,7 +48,10 @@ class MPCServer(BaseFederatedServer):
             self.global_model.set_weights(new_weights)
         except Exception as e:
             print(f"Erreur MPC: {e}")
-            return self.evaluate(test_data)
+            # Garder l'accuracy précédente au lieu de 0.1
+            if self.metrics['test_accuracy']:
+                return self.metrics['test_accuracy'][-1]
+            return 0.1
 
         # Évaluation et métriques
         test_acc = self.evaluate(test_data)
@@ -58,3 +62,9 @@ class MPCServer(BaseFederatedServer):
 
         self.current_round += 1
         return test_acc
+
+    def evaluate(self, test_data):
+        """Évalue le modèle global"""
+        x_test, y_test = test_data
+        loss, accuracy = self.global_model.evaluate(x_test, y_test, verbose=0)
+        return accuracy

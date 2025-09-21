@@ -12,13 +12,6 @@ class MPCClient(BaseFederatedClient):
         # Utiliser MPCAggregator par défaut
         super().__init__(client_id, data)
         self.is_byzantine = False
-
-    def get_update(self, global_model):
-        """Récupère la mise à jour standard pour le serveur"""
-        local_weights = self.local_model.get_weights()
-        global_weights = global_model.get_weights()
-        return [local_w - global_w for local_w, global_w in 
-                zip(local_weights, global_weights)]
     
     def get_secure_update(self, global_model):
         """Prépare mise à jour pour MPC"""

@@ -117,21 +117,21 @@ def plot_comparison(results):
 def save_comparison_results(results, args):
     """Sauvegarde les résultats de comparaison"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    try:
+        # Sauvegarde JSON
+        results_data = {
+            'timestamp': timestamp,
+            'configuration': {
+                'iid': args.iid,
+            },
+            'results': results
+        }
 
-    # Sauvegarde JSON
-    results_data = {
-        'timestamp': timestamp,
-        'configuration': {
-            'iid': args.iid,
-            'model': args.model,
-            'method': args.method
-        },
-        'results': results
-    }
+        json_file = os.path.join(RESULTS_DIR, f"comparison_{timestamp}.json")
+        with open(json_file, 'w') as f:
+            json.dump(results_data, f, indent=2, default=str)
 
-    json_file = os.path.join(RESULTS_DIR, f"comparison_{timestamp}.json")
-    with open(json_file, 'w') as f:
-        json.dump(results_data, f, indent=2)
+        print(f"Résultats sauvegardés: {json_file}")
 
-    print(f"Résultats sauvegardés: {json_file}")
-    return json_file
+    except Exception as e:
+        print(f"❌ Erreur sauvegarde JSON: {e}")

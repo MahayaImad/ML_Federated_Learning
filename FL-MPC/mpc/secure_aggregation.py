@@ -50,6 +50,8 @@ class MPCAggregator:
         new_global_weights = [
             global_w + update for global_w, update in zip(global_weights, aggregated_update)
         ]
+        # 5. Validation des poids reconstruits
+        self._validate_reconstructed_weights(new_global_weights)
 
         # Métriques
         agg_time = time.time() - start_time
@@ -131,7 +133,7 @@ class MPCAggregator:
 
             layer_weights = np.array(flat_weights).reshape(shape)
             reconstructed_layers.append(layer_weights)
-
+            
         return reconstructed_layers
 
     def _calculate_mpc_overhead(self, client_updates, num_clients):
@@ -140,3 +142,11 @@ class MPCAggregator:
         base_size = sum(np.prod(update.shape) for client_update in client_updates
                         for update in client_update)
         return base_size * num_clients * MPC_THRESHOLD
+
+    def _validate_reconstructed_weights(self, weights):
+        """Valide que les poids reconstruits sont cohérents"""
+        for layer_weights in weights:
+            if np.any(np.isnan(layer_weights)) or np.any(np.isinf(layer_weights)):
+                raise ValueError("Poids reconstruits invalides (NaN/Inf)")
+            if np.max(np.abs(layer_weights)) > 1000:  # Seuil arbitraire
+                raise ValueError("Poids reconstruits trop grands")

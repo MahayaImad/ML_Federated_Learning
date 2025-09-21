@@ -63,6 +63,16 @@ LEARNING_METHODS = {
         'description': 'Entraînement parallèle sans coordination',
         'communication_cost': 0,
         'privacy_level': 'high'
+    },
+    'FL_Cyclic': {
+        'description': 'FL avec agrégation cyclique pondérée',
+        'communication_cost': 'medium',
+        'privacy_level': 'medium'
+    },
+    'fl_ensemble': {
+        'description': 'FL avec méthode ensemble',
+        'communication_cost': 'high',
+        'privacy_level': 'high'
     }
 }
 

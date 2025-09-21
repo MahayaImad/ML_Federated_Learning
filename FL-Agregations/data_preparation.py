@@ -55,6 +55,58 @@ def prepare_federated_cifar10(iid=True, alpha=0.5):
 
     return fed_data, test_data, client_info
 
+def prepare_federated_mnist(iid=True, alpha=0.5):
+    """
+    Prépare MNIST pour l'apprentissage fédéré
+
+    Args:
+        iid: Si True, distribution IID. Si False, non-IID
+        alpha: Paramètre de concentration Dirichlet pour non-IID
+
+    Returns:
+        fed_data: données fédérées par client
+        test_data: données de test centralisées
+        client_info: informations sur chaque client
+    """
+    print(f"Préparation des données MNIST ({'IID' if iid else 'Non-IID'})")
+
+    # Charger MNIST
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+    # Normalisation et reshape pour CNN
+    x_train = x_train.astype('float32') / 255.0
+    x_test = x_test.astype('float32') / 255.0
+
+    # Ajouter dimension channel pour CNN (28, 28) -> (28, 28, 1)
+    x_train = np.expand_dims(x_train, axis=-1)
+    x_test = np.expand_dims(x_test, axis=-1)
+
+    # One-hot encoding
+    y_train = tf.keras.utils.to_categorical(y_train, 10)
+    y_test = tf.keras.utils.to_categorical(y_test, 10)
+
+    # Données de test centralisées
+    test_data = (x_test, y_test)
+
+    if iid:
+        fed_data = _create_iid_split(x_train, y_train)
+    else:
+        fed_data = _create_non_iid_split(x_train, y_train, alpha)
+
+    # Informations sur les clients
+    client_info = []
+    for i, (x_client, y_client) in enumerate(fed_data):
+        class_distribution = np.sum(y_client, axis=0)
+        client_info.append({
+            'client_id': i,
+            'num_samples': len(x_client),
+            'class_distribution': class_distribution
+        })
+
+    _print_data_info(client_info, dataset="MNIST")
+
+    return fed_data, test_data, client_info
+
 
 def _create_iid_split(x_train, y_train):
     """Crée une division IID des données"""
@@ -124,10 +176,10 @@ def _create_non_iid_split(x_train, y_train, alpha):
     return fed_data
 
 
-def _print_data_info(client_info):
+def _print_data_info(client_info, dataset="CIFAR-10"):
     """Affiche les informations sur la distribution des données"""
     print(f"\n{'=' * 50}")
-    print("DISTRIBUTION DES DONNÉES PAR CLIENT")
+    print(f"DISTRIBUTION DES DONNÉES {dataset} PAR CLIENT")
     print(f"{'=' * 50}")
 
     for info in client_info:

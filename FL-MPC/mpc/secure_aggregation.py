@@ -104,19 +104,17 @@ class MPCAggregator:
         return aggregated_shares
 
     def _weighted_average_shares(self, weight_shares, normalized_weights):
-        """Moyenne pondérée des parts secrètes"""
-        # Approximation : moyenne simple pour simplicité
-        # Dans une vraie implémentation MPC, ceci serait plus complexe
+        """Moyenne pondérée des parts secrètes - VERSION SIMPLIFIÉE"""
+        # Pour le contexte académique : approximation directe
         num_shares = len(weight_shares[0])
         result_shares = []
 
         for share_idx in range(num_shares):
-            weighted_sum = 0
-            for client_idx, shares in enumerate(weight_shares):
-                share_id, share_value = shares[share_idx]
-                weighted_sum += share_value * normalized_weights[client_idx]
+            # Moyenne simple des valeurs des parts
+            share_values = [shares[share_idx][1] for shares in weight_shares]
+            avg_value = sum(v * w for v, w in zip(share_values, normalized_weights))
 
-            result_shares.append((share_idx + 1, int(weighted_sum)))
+            result_shares.append((share_idx + 1, int(avg_value)))
 
         return result_shares
 

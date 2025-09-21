@@ -5,16 +5,21 @@ import numpy as np
 import time
 import json
 from datetime import datetime
-from models import create_cnn_model
+from models import create_cifar10_cnn, create_mnist_cnn
 from config import COMMUNICATION_ROUNDS
 
 
 class FederatedServer:
     """Serveur pour l'apprentissage fédéré"""
 
-    def __init__(self, aggregator, model_type="standard"):
+    def __init__(self, aggregator, model_type="standard", dataset="cifar10"):
         self.aggregator = aggregator
-        self.global_model = create_cnn_model(model_type)
+        self.model_type = model_type
+        self.dataset = dataset
+        if dataset == "cifar10":
+            self.global_model = create_cifar10_cnn(model_type)
+        elif dataset == "mnist":
+            self.global_model = create_mnist_cnn(model_type)
         self.current_round = 0
         self.metrics = {
             'train_accuracy': [],

@@ -112,7 +112,6 @@ LEARNING_RATE = 0.001         # Taux d'apprentissage
 
 # Algorithmes spécifiques
 FEDPROX_MU = 0.01             # Régularisation FedProx
-DIFFERENTIAL_PRIVACY_EPSILON = 1.0  # Budget ε pour DP
 ```
 
 ## 📈 Métriques Évaluées

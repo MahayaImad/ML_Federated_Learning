@@ -2,10 +2,10 @@
 Définitions des modèles pour l'apprentissage fédéré
 """
 import tensorflow as tf
-from config import WIDTH, HEIGHT, CHANNELS, NUM_CLASSES, LEARNING_RATE, BATCH_SIZE
+from config import WIDTH, HEIGHT, CHANNELS, NUM_CLASSES, LEARNING_RATE, DATASET_CONFIG
 
 
-def create_cnn_model(model_type="standard"):
+def create_cifar10_cnn(model_type="standard"):
     """
     Crée un modèle CNN pour CIFAR-10
 
@@ -139,6 +139,44 @@ def _create_robust_cnn():
     return model
 
 
+def create_mnist_cnn(model_type="lightweight"):
+    """
+    Crée un modèle CNN pour MNIST (28x28x1)
+    """
+    if model_type == "standard":
+        model = tf.keras.Sequential([
+            tf.keras.layers.Input(DATASET_CONFIG['mnist']['input_shape']),
+            tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dense(10, activation='softmax')
+        ])
+    elif model_type == "lightweight":
+        model = tf.keras.Sequential([
+            tf.keras.layers.Input(DATASET_CONFIG['mnist']['input_shape']),
+            tf.keras.layers.Conv2D(16, (5, 5), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(32, activation='relu'),
+            tf.keras.layers.Dense(10, activation='softmax')
+        ])
+
+    model.compile(
+        optimizer='adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
+
+    return model
+
+
 def get_model_weights(model):
     """Récupère les poids d'un modèle"""
     return model.get_weights()
@@ -167,10 +205,11 @@ def copy_model(model):
         model_copy.set_weights(weights)
 
         # Initialiser le modèle avec un batch factice
-        dummy_input = tf.zeros((1, WIDTH, HEIGHT, CHANNELS))
-        dummy_output = tf.zeros((1, NUM_CLASSES))
 
-        with tf.device('/GPU:0' if tf.config.list_physical_devices('GPU') else '/CPU:0'):
-            model_copy(dummy_input, training=False)
+        # dummy_input = tf.zeros((1, WIDTH, HEIGHT, CHANNELS))
+        # dummy_output = tf.zeros((1, NUM_CLASSES))
+
+        # with tf.device('/GPU:0' if tf.config.list_physical_devices('GPU') else '/CPU:0'):
+        #     model_copy(dummy_input, training=False)
 
         return model_copy

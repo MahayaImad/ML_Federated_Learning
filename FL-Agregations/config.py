@@ -12,7 +12,7 @@ CHANNELS = 3
 NUM_CLASSES = 10
 
 # Configuration d'entraînement
-COMMUNICATION_ROUNDS = 50
+COMMUNICATION_ROUNDS = 10
 LOCAL_EPOCHS = 3
 BATCH_SIZE = 64
 LEARNING_RATE = 0.001
@@ -24,10 +24,9 @@ FEDOPT_BETA1 = 0.9
 FEDOPT_BETA2 = 0.99
 FEDOPT_TAU = 1e-3
 
-# Configuration de sécurité
-SECURE_AGGREGATION_THRESHOLD = 3
-DIFFERENTIAL_PRIVACY_EPSILON = 1.0
-DIFFERENTIAL_PRIVACY_DELTA = 1e-5
+# Paramètres MOON
+MOON_TEMPERATURE = 0.5  # Température pour contrastive loss
+MOON_MU = 1.0          # Coefficient de pondération
 
 # Chemins
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,3 +43,20 @@ CIFAR_LABELS = [
     'airplane', 'automobile', 'bird', 'cat', 'deer',
     'dog', 'frog', 'horse', 'ship', 'truck'
 ]
+
+# Datasets supportés
+SUPPORTED_DATASETS = ['cifar10', 'mnist']
+
+# Configuration par dataset
+DATASET_CONFIG = {
+    'cifar10': {
+        'input_shape': (32, 32, 3),
+        'num_classes': 10,
+        'model_function': 'create_cifar10_cnn'
+    },
+    'mnist': {
+        'input_shape': (28, 28, 1),
+        'num_classes': 10,
+        'model_function': 'create_mnist_cnn'
+    }
+}

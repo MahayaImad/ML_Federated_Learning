@@ -84,7 +84,7 @@ python main.py --help
 
 Options:
   --iid          Distribution IID des données (défaut: non-IID)
-  --rounds N     Nombre de tours d'entraînement (défaut: 30)
+  --rounds N     Nombre de rounds d'entraînement (défaut: 30)
   --plot         Afficher les graphiques de comparaison
   --byzantine N  Nombre de clients byzantins à simuler
 ```
@@ -114,7 +114,7 @@ python main.py --byzantine 1 --rounds 40 --plot
 - **Stabilité** : Variance des performances
 
 ### Efficacité
-- **Temps d'exécution** : Par tour et total
+- **Temps d'exécution** : Par Round et total
 - **Communication** : Overhead MPC vs FL classique
 - **Scalabilité** : Performance selon nombre de clients
 
@@ -166,8 +166,8 @@ Modifier `config.py` pour ajuster :
 === RÉSULTATS FINAUX ===
 FL Classique - Accuracy finale: 0.7245
 FL-MPC - Accuracy finale: 0.7156
-FL Classique - Temps moyen/tour: 12.34s
-FL-MPC - Temps moyen/tour: 45.67s
+FL Classique - Temps moyen/round: 12.34s
+FL-MPC - Temps moyen/round: 45.67s
 Overhead MPC: 3.2x communication
 ```
 

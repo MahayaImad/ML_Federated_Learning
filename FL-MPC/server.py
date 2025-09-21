@@ -1,13 +1,13 @@
 """
 Serveur MPC
 """
-from datetime import time
+import time
 
-from FL_Agregations.server import FederatedServer
+from federated_base import BaseFederatedServer
 from mpc.secure_aggregation import MPCAggregator
 
 
-class MPCServer(FederatedServer):
+class MPCServer(BaseFederatedServer):
     """Serveur pour FL avec MPC"""
 
     def __init__(self, model_type="standard"):
@@ -15,7 +15,7 @@ class MPCServer(FederatedServer):
         self.name = "MPC-FederatedServer"
 
     def train_round(self, clients, test_data, selection_ratio=1.0):
-        """Tour d'entraînement avec MPC"""
+        """Round d'entraînement avec MPC"""
         round_start_time = time.time()
 
         # Sélection des clients (besoin minimum pour MPC)

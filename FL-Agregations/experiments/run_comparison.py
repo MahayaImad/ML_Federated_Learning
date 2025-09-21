@@ -2,19 +2,20 @@
 Comparaison des différentes méthodes d'agrégation
 """
 from aggregations import (FedAvgAggregator, FedProxAggregator, ScaffoldAggregator,
-                         FedOptAggregator)
+                         FedOptAggregator, MoonAggregator)
 from client import FederatedClient
 from server import FederatedServer
 import numpy as np
 
 
-def compare_aggregation_methods(fed_data, test_data, model_type="standard"):
+def compare_aggregation_methods(fed_data, test_data, model_type="standard", dataset="cifar-10"):
 
     methods = {
         'FedAvg': FedAvgAggregator(),
         'FedProx': FedProxAggregator(mu=0.01),
         'SCAFFOLD': ScaffoldAggregator(),
         'FedOpt-Adam': FedOptAggregator(optimizer_type="adam"),
+        'MOON': MoonAggregator(temperature=0.5, mu=1.0),
     }
     results = {}
 
@@ -24,7 +25,7 @@ def compare_aggregation_methods(fed_data, test_data, model_type="standard"):
         try:
             clients = [FederatedClient(i, data, aggregator)
                        for i, data in enumerate(fed_data)]
-            server = FederatedServer(aggregator, model_type)
+            server = FederatedServer(aggregator, model_type, dataset)
 
             model, metrics = server.train_federated(clients, test_data)
 

@@ -7,11 +7,13 @@ from .fedavg import FedAvgAggregator
 from .fedprox import FedProxAggregator
 from .scaffold import ScaffoldAggregator
 from .fedopt import FedOptAggregator
+from .moon import MoonAggregator
 
 __all__ = [
     'BaseAggregator',
     'FedAvgAggregator',
     'FedProxAggregator',
     'ScaffoldAggregator',
-    'FedOptAggregator'
+    'FedOptAggregator',
+    'MoonAggregator'
 ]

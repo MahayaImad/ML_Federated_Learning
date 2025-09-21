@@ -1,0 +1,51 @@
+"
+==================================================
+DISTRIBUTION DES DONNÉES MNIST PAR CLIENT
+==================================================
+Client 0: 3000 échantillons
+  Classes dominantes: [1 9 6] ([357 312 307])
+Client 1: 3000 échantillons
+  Classes dominantes: [2 4 1] ([329 329 328])
+Client 2: 3000 échantillons
+  Classes dominantes: [1 7 2] ([378 305 305])
+Client 3: 3000 échantillons
+  Classes dominantes: [1 9 7] ([360 323 316])
+Client 4: 3000 échantillons
+  Classes dominantes: [1 7 4] ([348 319 315])
+==================================================
+"
+{
+  "timestamp": "20250921_134440",
+  "configuration": {
+    "iid": true,
+    "model": "lightweight",
+    "method": "compare"
+  },
+  "results": {
+    "FedAvg": {
+      "final_accuracy": 0.9815999865531921,
+      "convergence_rate": 0.01851110988193088,
+      "communication_cost": 1550900
+    },
+    "FedProx": {
+      "final_accuracy": 0.9829000234603882,
+      "convergence_rate": 0.013177778985765245,
+      "communication_cost": 1550900
+    },
+    "SCAFFOLD": {
+      "final_accuracy": 0.982200026512146,
+      "convergence_rate": 0.012422223885854086,
+      "communication_cost": 3101800
+    },
+    "FedOpt-Adam": {
+      "final_accuracy": 0.5584999918937683,
+      "convergence_rate": 0.04685555398464203,
+      "communication_cost": 1550900
+    },
+    "MOON": {
+      "final_accuracy": 0.982200026512146,
+      "convergence_rate": 0.007677780257331001,
+      "communication_cost": 1550900
+    }
+  }
+}

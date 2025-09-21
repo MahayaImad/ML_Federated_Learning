@@ -19,6 +19,10 @@ def setup_gpu(gpu_id):
     elif gpus and gpu_id < len(gpus):
         try:
             tf.config.experimental.set_memory_growth(gpus[gpu_id], True)
+            tf.config.experimental.set_virtual_device_configuration(
+                gpus[gpu_id],
+                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)]
+            )
             print(f"🎮 Utilisation du GPU: {gpus[gpu_id].name}")
         except RuntimeError as e:
             print(f"❌ Erreur GPU: {e}")

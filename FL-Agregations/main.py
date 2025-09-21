@@ -39,9 +39,9 @@ def configure_gpu():
 # Configurer avant tout
 configure_gpu()
 import argparse
-from data_preparation import prepare_federated_cifar10
+from data_preparation import prepare_federated_cifar10, prepare_federated_mnist
 from aggregations import (FedAvgAggregator, FedProxAggregator, ScaffoldAggregator,
-                         FedOptAggregator)
+                         FedOptAggregator, MoonAggregator)
 from client import FederatedClient
 from server import FederatedServer
 from experiments.run_comparison import compare_aggregation_methods
@@ -107,22 +107,23 @@ def plot_comparison_results(results, args):
     comm_costs = [results[method]['communication_cost'] for method in methods]
 
     # Créer les graphiques
+    colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57']
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
     # Accuracy finale
-    axes[0].bar(methods, accuracies)
+    axes[0].bar(methods, accuracies,color=colors[:len(methods)])
     axes[0].set_title('Accuracy Finale par Méthode')
     axes[0].set_ylabel('Accuracy')
     axes[0].tick_params(axis='x', rotation=45)
 
     # Taux de convergence
-    axes[1].bar(methods, conv_rates)
+    axes[1].bar(methods, conv_rates,color=colors[:len(methods)])
     axes[1].set_title('Taux de Convergence')
     axes[1].set_ylabel('Taux')
     axes[1].tick_params(axis='x', rotation=45)
 
     # Coût de communication
-    axes[2].bar(methods, comm_costs)
+    axes[2].bar(methods, comm_costs,color=colors[:len(methods)])
     axes[2].set_title('Coût de Communication')
     axes[2].set_ylabel('Coût')
     axes[2].tick_params(axis='x', rotation=45)
@@ -190,8 +191,11 @@ def plot_single_method_metrics(metrics, method_name, args):
 def main():
     parser = argparse.ArgumentParser(description='Apprentissage Fédéré')
     parser.add_argument('--method', type=str, default='fedavg',
-                        choices=['fedavg', 'fedprox', 'scaffold', 'compare'],
+                        choices=['fedavg', 'fedprox', 'scaffold', 'moon', 'compare'],
                         help='Méthode d\'agrégation')
+    parser.add_argument('--dataset', type=str, default='cifar10',
+                        choices=['cifar10', 'mnist'],
+                        help='Dataset à utiliser')
     parser.add_argument('--iid', action='store_true', help='Distribution IID')
     parser.add_argument('--model', type=str, default='standard',
                         choices=['standard', 'lightweight', 'robust'],
@@ -202,7 +206,10 @@ def main():
     try:
         # Préparation des données
         print("Préparation des données...")
-        fed_data, test_data, _ = prepare_federated_cifar10(iid=args.iid)
+        if args.dataset == 'cifar10':
+            fed_data, test_data, _ = prepare_federated_cifar10(iid=args.iid)
+        elif args.dataset == 'mnist':
+            fed_data, test_data, _ = prepare_federated_mnist(iid=args.iid)
 
         # Validation des données
         if not fed_data or not test_data:
@@ -212,7 +219,7 @@ def main():
         if args.method == 'compare':
             print("Démarrage de la comparaison de toutes les méthodes...")
             try:
-                results = compare_aggregation_methods(fed_data, test_data, args.model)
+                results = compare_aggregation_methods(fed_data, test_data, args.model, args.dataset)
                 print("\n=== RÉSULTATS DE COMPARAISON ===")
                 for method, metrics in results.items():
                     acc = metrics.get('final_accuracy', 0.0)
@@ -233,7 +240,8 @@ def main():
                     'fedavg': FedAvgAggregator(),
                     'fedprox': FedProxAggregator(),
                     'scaffold': ScaffoldAggregator(),
-                    'fedopt': FedOptAggregator(optimizer_type="adam")
+                    'fedopt': FedOptAggregator(optimizer_type="adam"),
+                    'moon': MoonAggregator(temperature=0.5, mu=1.0),
                 }[args.method]
 
                 print(f"Agrégateur créé: {aggregator.name}")
@@ -252,7 +260,7 @@ def main():
                            for i, data in enumerate(fed_data)]
 
                 print("Création du serveur...")
-                server = FederatedServer(aggregator, args.model)
+                server = FederatedServer(aggregator, args.model, args.dataset)
 
                 # Validation
                 if not clients:

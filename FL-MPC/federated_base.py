@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 import json
 from models import copy_model
-from config import LOCAL_EPOCHS, BATCH_SIZE, COMMUNICATION_ROUNDS
+from config import LOCAL_EPOCHS, BATCH_SIZE, COMMUNICATION_ROUNDS, LEARNING_RATE
 
 
 class BaseFederatedClient:
@@ -36,8 +36,8 @@ class BaseFederatedClient:
 
         # Recompiler le modèle pour éviter les conflits
         self.local_model.compile(
-            optimizer='adam',
-            loss='categorical_crossentropy',
+            optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+            loss='sparse_categorical_crossentropy',
             metrics=['accuracy']
         )
 

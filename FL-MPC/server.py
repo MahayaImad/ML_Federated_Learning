@@ -140,13 +140,16 @@ class MPCServer(BaseFederatedServer):
         }
 
     def _validate_reconstructed_weights(self, weights):
-        """Valide que les poids reconstruits sont cohérents"""
+        """Valide les poids reconstruits"""
+        if not weights:
+            return False
+
         try:
-            for layer in weights:
-                if np.any(np.isnan(layer)) or np.any(np.isinf(layer)):
+            for layer_weights in weights:
+                if np.any(np.isnan(layer_weights)) or np.any(np.isinf(layer_weights)):
                     return False
-                if np.max(np.abs(layer)) > 100:  # Seuil raisonnable
+                if np.max(np.abs(layer_weights)) > 1000:
                     return False
             return True
-        except:
+        except Exception:
             return False

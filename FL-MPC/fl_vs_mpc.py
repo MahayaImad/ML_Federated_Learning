@@ -24,7 +24,31 @@ def compare_fl_vs_mpc(fed_data, test_data, rounds=30):
 
     results = {}
 
-    # 1. FL Classique
+
+
+    # 2. FL-MPC
+    print("\n--- FL avec MPC ---")
+    # NOUVEAU CODE
+    total_clients = len(fed_data)
+    mpc_clients = [MPCClient(i, data, total_clients) for i, data in enumerate(fed_data)]
+    mpc_server = MPCServer()
+
+    try:
+        _, mpc_metrics = mpc_server.train_federated(
+            mpc_clients, test_data, rounds
+        )
+
+        results['mpc'] = {
+            'accuracy': mpc_metrics['test_accuracy'],
+            'times': mpc_metrics['round_times'],
+            'inter_client_comm': mpc_metrics.get('inter_client_comm_cost', []),
+            'total_comm': mpc_metrics.get('total_comm_cost', [])
+        }
+    except Exception as e:
+        print(f"Erreur FL-MPC: {e}")
+        results['mpc'] = None
+
+        # 1. FL Classique
     print("\n--- FL Classique (FedAvg) ---")
     classic_clients = [BaseFederatedClient(i, data) for i, data in enumerate(fed_data)]
     classic_server = BaseFederatedServer(SimpleFedAvgAggregator())
@@ -38,25 +62,6 @@ def compare_fl_vs_mpc(fed_data, test_data, rounds=30):
         'times': classic_metrics['round_times'],
         'communication': classic_metrics.get('communication_costs', [])
     }
-
-    # 2. FL-MPC
-    print("\n--- FL avec MPC ---")
-    mpc_clients = [MPCClient(i, data) for i, data in enumerate(fed_data)]
-    mpc_server = MPCServer()
-
-    try:
-        _, mpc_metrics = mpc_server.train_federated(
-            mpc_clients, test_data, rounds
-        )
-
-        results['mpc'] = {
-            'accuracy': mpc_metrics['test_accuracy'],
-            'times': mpc_metrics['round_times'],
-            'mpc_overhead': mpc_server.aggregator.history['mpc_overhead']
-        }
-    except Exception as e:
-        print(f"Erreur FL-MPC: {e}")
-        results['mpc'] = None
 
     return results
 

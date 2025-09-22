@@ -1,152 +1,226 @@
 """
-Agrégation sécurisée avec MPC
+Agrégation sécurisée avec MPC - VERSION INTER-CLIENTS
+Pas d'agrégation MPC côté serveur, juste FedAvg classique
+Le MPC se fait entre clients avant envoi au serveur
 """
 import numpy as np
 import time
-from .secret_sharing import ShamirSecretSharing
 from config import MPC_THRESHOLD
 
 
 class MPCAggregator:
-    """Agrégateur utilisant MPC"""
+    """
+    Agrégateur simplifié pour serveur MPC
+    Le vrai MPC se fait entre clients, pas au serveur
+    """
 
     def __init__(self):
-        self.name = "MPC-SecureAgg"
-        self.secret_sharing = ShamirSecretSharing(MPC_THRESHOLD)
-        self.round_number = 0
+        self.name = "MPC-InterClientAgg"
+        self.threshold = MPC_THRESHOLD
         self.history = {
-            'communication_costs': [],
             'aggregation_times': [],
+            'communication_costs': [],
             'mpc_overhead': []
         }
 
-    def secure_aggregate(self, client_updates, client_weights, global_model):
-        """Agrégation sécurisée avec MPC"""
+    def aggregate(self, client_updates, client_weights, global_model):
+        """
+        Agrégation standard FedAvg au serveur
+        Les clients ont déjà fait le MPC entre eux
+        """
         start_time = time.time()
 
-        num_clients = len(client_updates)
-        if num_clients < MPC_THRESHOLD:
-            raise ValueError(f"Besoin d'au moins {MPC_THRESHOLD} clients")
+        if len(client_updates) < self.threshold:
+            raise ValueError(f"Besoin d'au moins {self.threshold} clients")
 
-        # 1. Chaque client partage ses mises à jour
-        shared_updates = []
-        for client_update in client_updates:
-            client_shares = []
-            for layer_update in client_update:
-                layer_shares = self._share_layer(layer_update, num_clients)
-                client_shares.append(layer_shares)
-            shared_updates.append(client_shares)
+        # FedAvg classique : moyenne pondérée des updates
+        aggregated_update = self._fedavg_aggregation(client_updates, client_weights)
 
-        # 2. Calcul sécurisé de la moyenne pondérée
-        aggregated_shares = self._compute_weighted_average_shares(
-            shared_updates, client_weights, num_clients
-        )
-
-        # 3. Reconstruction du résultat
-        aggregated_update = self._reconstruct_aggregation(aggregated_shares)
-
-        # 4. Mise à jour du modèle global
+        # Application de l'update au modèle global
         global_weights = global_model.get_weights()
-        new_global_weights = [
-            global_w + update for global_w, update in zip(global_weights, aggregated_update)
-        ]
-        # 5. Validation des poids reconstruits
-        self._validate_reconstructed_weights(new_global_weights)
+        new_weights = []
+
+        for global_layer, update_layer in zip(global_weights, aggregated_update):
+            new_layer = global_layer + update_layer
+            new_weights.append(new_layer)
 
         # Métriques
         agg_time = time.time() - start_time
-        mpc_overhead = self._calculate_mpc_overhead(client_updates, num_clients)
+        self.history['aggregation_times'].append(float(agg_time))
 
-        self.history['aggregation_times'].append(agg_time)
-        self.history['mpc_overhead'].append(mpc_overhead)
+        return new_weights
 
-        return new_global_weights
+    def _fedavg_aggregation(self, client_updates, client_weights):
+        """FedAvg standard : moyenne pondérée"""
+        total_weight = sum(client_weights)
 
-    def _share_layer(self, layer_weights, num_clients):
-        """Partage les poids d'une couche"""
-        flat_weights = layer_weights.flatten()
-        shares_matrix = []
+        if total_weight == 0:
+            raise ValueError("Poids total des clients est zéro")
 
-        for weight in flat_weights:
-            shares = self.secret_sharing.share_secret(weight, num_clients)
-            shares_matrix.append(shares)
-
-        return shares_matrix, layer_weights.shape
-
-    def _compute_weighted_average_shares(self, shared_updates, weights, num_clients):
-        """Calcule la moyenne pondérée sur les parts partagées"""
         # Normaliser les poids
-        total_weight = sum(weights)
-        normalized_weights = [w / total_weight for w in weights]
+        normalized_weights = [w / total_weight for w in client_weights]
 
-        # Pour chaque couche
-        aggregated_shares = []
-        num_layers = len(shared_updates[0])
+        # Initialiser l'agrégation
+        aggregated_layers = []
 
-        for layer_idx in range(num_layers):
-            layer_shares = []
-            shares_matrix, shape = shared_updates[0][layer_idx]
+        for layer_idx in range(len(client_updates[0])):
+            # Moyenne pondérée pour cette couche
+            layer_sum = np.zeros_like(client_updates[0][layer_idx])
 
-            # Pour chaque poids dans la couche
-            for weight_idx in range(len(shares_matrix)):
-                # Collecter toutes les parts pour ce poids
-                weight_shares = []
-                for client_idx in range(len(shared_updates)):
-                    client_shares, _ = shared_updates[client_idx][layer_idx]
-                    weight_shares.append(client_shares[weight_idx])
+            for client_idx, update in enumerate(client_updates):
+                weight = normalized_weights[client_idx]
+                layer_sum += update[layer_idx] * weight
 
-                # Calcul de la moyenne pondérée des parts
-                averaged_shares = self._weighted_average_shares(
-                    weight_shares, normalized_weights
-                )
-                layer_shares.append(averaged_shares)
+            aggregated_layers.append(layer_sum)
 
-            aggregated_shares.append((layer_shares, shape))
+        return aggregated_layers
 
-        return aggregated_shares
+    def get_communication_overhead(self):
+        """Retourne l'overhead de communication estimé"""
+        return {
+            'aggregation_times': self.history['aggregation_times'],
+            'total_overhead': sum(self.history.get('mpc_overhead', []))
+        }
 
-    def _weighted_average_shares(self, weight_shares, normalized_weights):
-        """Moyenne pondérée des parts secrètes - VERSION SIMPLIFIÉE"""
-        # Pour le contexte académique : approximation directe
-        num_shares = len(weight_shares[0])
-        result_shares = []
 
-        for share_idx in range(num_shares):
-            # Moyenne simple des valeurs des parts
-            share_values = [shares[share_idx][1] for shares in weight_shares]
-            avg_value = sum(v * w for v, w in zip(share_values, normalized_weights))
+# Classe utilitaire pour les calculs MPC côté client
+class ClientMPCHelper:
+    """
+    Classe helper pour les calculs MPC côté client
+    Utilisée dans la reconstruction des modèles
+    """
 
-            result_shares.append((share_idx + 1, int(avg_value)))
+    @staticmethod
+    def validate_shares_consistency(shares_dict, expected_clients):
+        """Valide la cohérence des shares reçues"""
+        received_clients = set(shares_dict.keys())
 
-        return result_shares
+        if len(received_clients) < MPC_THRESHOLD - 1:
+            raise ValueError(f"Pas assez de shares: {len(received_clients)} < {MPC_THRESHOLD - 1}")
 
-    def _reconstruct_aggregation(self, aggregated_shares):
-        """Reconstruit le résultat final"""
-        reconstructed_layers = []
+        # Vérifier la structure des shares
+        first_shares = next(iter(shares_dict.values()))
+        expected_layers = set(first_shares.keys())
 
-        for layer_shares, shape in aggregated_shares:
-            flat_weights = []
+        for client_id, shares_data in shares_dict.items():
+            if set(shares_data.keys()) != expected_layers:
+                raise ValueError(f"Structure incohérente pour client {client_id}")
 
-            for weight_shares in layer_shares:
-                reconstructed_weight = self.secret_sharing.reconstruct_secret(weight_shares)
-                flat_weights.append(reconstructed_weight)
+        return True
 
-            layer_weights = np.array(flat_weights).reshape(shape)
-            reconstructed_layers.append(layer_weights)
-            
-        return reconstructed_layers
+    @staticmethod
+    def calculate_reconstruction_cost(shares_dict, layer_shapes):
+        """Calcule le coût de reconstruction"""
+        total_cost = 0
 
-    def _calculate_mpc_overhead(self, client_updates, num_clients):
-        """Calcule l'overhead MPC"""
-        # Simplification : facteur multiplicatif basé sur le nombre de parts
-        base_size = sum(np.prod(update.shape) for client_update in client_updates
-                        for update in client_update)
-        return base_size * num_clients * MPC_THRESHOLD
+        for client_id, shares_data in shares_dict.items():
+            for layer_idx, layer_data in shares_data.items():
+                # Coût = nombre de shares * taille de chaque share
+                num_shares = len(layer_data.get('shares', []))
+                total_cost += num_shares * 2  # (point, valeur) par share
 
-    def _validate_reconstructed_weights(self, weights):
-        """Valide que les poids reconstruits sont cohérents"""
-        for layer_weights in weights:
-            if np.any(np.isnan(layer_weights)) or np.any(np.isinf(layer_weights)):
-                raise ValueError("Poids reconstruits invalides (NaN/Inf)")
-            if np.max(np.abs(layer_weights)) > 1000:  # Seuil arbitraire
-                raise ValueError("Poids reconstruits trop grands")
+        return total_cost
+
+    @staticmethod
+    def estimate_communication_savings(num_clients, model_size):
+        """
+        Estime les économies de communication du MPC
+        vs envoi direct des modèles
+        """
+        # Communication directe : chaque client envoie tout son modèle
+        direct_comm = num_clients * model_size
+
+        # Communication MPC : shares entre clients + modèles reconstruits
+        mpc_inter_client = num_clients * (num_clients - 1) * model_size * 0.1  # shares plus petites
+        mpc_to_server = num_clients * model_size  # modèles reconstruits
+        mpc_total = mpc_inter_client + mpc_to_server
+
+        return {
+            'direct_communication': direct_comm,
+            'mpc_communication': mpc_total,
+            'overhead_ratio': mpc_total / direct_comm if direct_comm > 0 else float('inf'),
+            'privacy_benefit': 'Modèles individuels protégés par secret sharing'
+        }
+
+
+# Classe pour les métriques MPC
+class MPCMetrics:
+    """Collecteur de métriques spécifiques au MPC"""
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        """Remet à zéro les métriques"""
+        self.metrics = {
+            'shares_creation_time': [],
+            'inter_client_communication': [],
+            'reconstruction_time': [],
+            'total_mpc_time': [],
+            'communication_costs': [],
+            'accuracy_impact': []
+        }
+
+    def record_shares_creation(self, time_taken, num_clients):
+        """Enregistre le temps de création des shares"""
+        self.metrics['shares_creation_time'].append({
+            'time': float(time_taken),
+            'clients': int(num_clients)
+        })
+
+    def record_inter_client_comm(self, comm_cost, num_clients):
+        """Enregistre la communication inter-clients"""
+        self.metrics['inter_client_communication'].append({
+            'cost': float(comm_cost),
+            'clients': int(num_clients)
+        })
+
+    def record_reconstruction(self, time_taken, success_rate):
+        """Enregistre les résultats de reconstruction"""
+        self.metrics['reconstruction_time'].append({
+            'time': float(time_taken),
+            'success_rate': float(success_rate)
+        })
+
+    def get_summary(self):
+        """Retourne un résumé des métriques"""
+        summary = {}
+
+        for metric_name, values in self.metrics.items():
+            if values and isinstance(values[0], dict):
+                # Métriques structurées
+                times = [v.get('time', 0) for v in values]
+                summary[metric_name] = {
+                    'avg_time': np.mean(times) if times else 0,
+                    'total_time': np.sum(times) if times else 0,
+                    'count': len(values)
+                }
+            else:
+                # Métriques simples
+                summary[metric_name] = {
+                    'values': values,
+                    'avg': np.mean(values) if values else 0,
+                    'total': np.sum(values) if values else 0
+                }
+
+        return summary
+
+    def export_for_json(self):
+        """Exporte les métriques dans un format JSON-compatible"""
+        clean_metrics = {}
+
+        for key, values in self.metrics.items():
+            if isinstance(values, list):
+                clean_values = []
+                for v in values:
+                    if isinstance(v, dict):
+                        clean_v = {k: float(val) if isinstance(val, (np.integer, np.floating)) else val
+                                  for k, val in v.items()}
+                        clean_values.append(clean_v)
+                    else:
+                        clean_values.append(float(v) if isinstance(v, (np.integer, np.floating)) else v)
+                clean_metrics[key] = clean_values
+            else:
+                clean_metrics[key] = values
+
+        return clean_metrics

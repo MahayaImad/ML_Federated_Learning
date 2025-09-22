@@ -142,12 +142,21 @@ def prepare_mia_splits(x_train, y_train, x_test, y_test, num_clients, target_sam
 def create_federated_split_mia(x_train, y_train, num_clients, alpha=0.5):
     """Crée une division fédérée pour MIA (non-IID par défaut)"""
     num_classes = len(np.unique(y_train))
-    samples_per_client = len(x_train) // num_clients
+
+    # Vérifier que samples_per_client n'est pas trop grand
+    max_possible = len(x_train) // max(1, num_clients)
+    samples_per_client = max_possible
+
+    if samples_per_client == 0:
+        print(f"⚠️ Pas assez de données pour {num_clients} clients")
+        samples_per_client = 1
+
+    print(f"📊 Division fédérée: {samples_per_client} échantillons par client")
 
     # Grouper par classe
     class_indices = {}
     for class_id in range(num_classes):
-        class_indices[class_id] = np.where(y_train == class_id)[0]
+        class_indices[class_id] = np.where(y_train == class_id)[0].copy()
 
     splits = []
     for client_id in range(num_clients):
@@ -158,29 +167,65 @@ def create_federated_split_mia(x_train, y_train, num_clients, alpha=0.5):
         # Ajuster pour avoir exactement samples_per_client
         diff = samples_per_client - samples_per_class.sum()
         if diff != 0:
-            samples_per_class[np.argmax(proportions)] += diff
+            # Trouver une classe qui a encore des échantillons
+            available_classes = [i for i in range(num_classes) if len(class_indices[i]) > 0]
+            if available_classes:
+                target_class = available_classes[np.argmax([proportions[i] for i in available_classes])]
+                samples_per_class[target_class] += diff
+            else:
+                print(f"⚠️ Plus d'échantillons disponibles pour client {client_id}")
+                break
 
         # Sélectionner les échantillons
         client_indices = []
         for class_id, num_samples in enumerate(samples_per_class):
             if num_samples > 0 and len(class_indices[class_id]) > 0:
                 available = class_indices[class_id]
-                selected = np.random.choice(
-                    available,
-                    min(num_samples, len(available)),
-                    replace=False
-                )
-                client_indices.extend(selected)
-                # Retirer les indices utilisés
-                class_indices[class_id] = np.setdiff1d(class_indices[class_id], selected)
+                take_samples = min(num_samples, len(available))
+
+                if take_samples > 0:
+                    selected = np.random.choice(
+                        available,
+                        take_samples,
+                        replace=False
+                    )
+                    client_indices.extend(selected)
+                    # Retirer les indices utilisés
+                    class_indices[class_id] = np.setdiff1d(class_indices[class_id], selected)
+
+                    # Vérifier s'il reste des indices
+                    if len(class_indices[class_id]) == 0:
+                        print(f"⚠️ Classe {class_id} épuisée après client {client_id}")
+
+        # S'assurer qu'il y a au moins quelques échantillons
+        if len(client_indices) == 0:
+            print(f"⚠️ Client {client_id} sans données, redistribution...")
+            # Prendre quelques échantillons au hasard des classes disponibles
+            available_classes = [cid for cid, indices in class_indices.items() if len(indices) > 0]
+            if available_classes:
+                class_id = np.random.choice(available_classes)
+                take_samples = min(10, len(class_indices[class_id]))
+                if take_samples > 0:
+                    selected = np.random.choice(class_indices[class_id], take_samples, replace=False)
+                    client_indices.extend(selected)
+                    class_indices[class_id] = np.setdiff1d(class_indices[class_id], selected)
 
         if len(client_indices) > 0:
             x_client = x_train[client_indices]
             y_client = y_train[client_indices]
             splits.append((x_client, y_client))
+            print(f"  Client {client_id}: {len(client_indices)} échantillons")
+        else:
+            print(f"⚠️ Client {client_id} ignoré (pas de données)")
 
+    # S'assurer qu'il y a au moins un split
+    if len(splits) == 0:
+        print("⚠️ Aucun split créé, création d'un split minimal...")
+        # Prendre toutes les données pour un seul client
+        splits.append((x_train, y_train))
+
+    print(f"✅ {len(splits)} clients créés avec {[len(x) for x, y in splits]} échantillons")
     return splits
-
 
 def prepare_shadow_data(x_all, y_all, target_samples, num_shadow_datasets=5):
     """Prépare les données pour les modèles shadow"""

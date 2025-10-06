@@ -45,7 +45,7 @@ def create_cnn_model(model_type="standard"):
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-        loss='sparse_categorical_crossentropy',
+        loss='categorical_crossentropy',
         metrics=['accuracy']
     )
 
@@ -56,8 +56,8 @@ def copy_model(model):
     """Copie un modèle TensorFlow"""
     new_model = tf.keras.models.clone_model(model)
     new_model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-        loss='sparse_categorical_crossentropy',
+        optimizer='adam',
+        loss='categorical_crossentropy',
         metrics=['accuracy']
     )
     new_model.set_weights(model.get_weights())

@@ -1,0 +1,157 @@
+root@1fcb5b097a24:/app/FL-aggregation-hierarchical# python main.py --hierarchy-type compare --dataset mnist --clients 20 --edge-servers 5 --round 10 --epochs 1 --verbose --plot 
+🔄 Démarrage FL Aggregation Hierarchical...
+Type: compare
+Clients: 20
+Edge Servers: 5
+Rounds: 10
+Distribution: Non-IID
+🎮 Utilisation du GPU: /physical_device:GPU:0
+
+📊 Préparation des données ...
+Préparation des données MNIST (Non-IID)
+
+==================================================
+DISTRIBUTION DES DONNÉES MNIST PAR CLIENT
+==================================================
+Client 0: 3000 échantillons
+  Classes dominantes: [6 1 4] ([1264  757  431])
+Client 1: 3000 échantillons
+  Classes dominantes: [0 1 6] ([1144  783  508])
+Client 2: 3000 échantillons
+  Classes dominantes: [8 0 6] ([1871  496  296])
+Client 3: 3000 échantillons
+  Classes dominantes: [2 8 1] ([775 680 527])
+Client 4: 3000 échantillons
+  Classes dominantes: [8 1 2] ([1646  798  167])
+Client 5: 3000 échantillons
+  Classes dominantes: [7 1 4] ([1220  637  354])
+Client 6: 3000 échantillons
+  Classes dominantes: [5 0 6] ([1203  575  491])
+Client 7: 3000 échantillons
+  Classes dominantes: [6 2 5] ([1174  646  593])
+Client 8: 3000 échantillons
+  Classes dominantes: [1 5 4] ([941 861 468])
+Client 9: 3000 échantillons
+  Classes dominantes: [7 1 9] ([921 751 499])
+Client 10: 3000 échantillons
+  Classes dominantes: [2 3 6] ([916 400 358])
+Client 11: 3000 échantillons
+  Classes dominantes: [3 7 2] ([1202  496  478])
+Client 12: 3000 échantillons
+  Classes dominantes: [2 1 9] ([1271 1091  180])
+Client 13: 3000 échantillons
+  Classes dominantes: [6 7 1] ([1720  512  200])
+Client 14: 3000 échantillons
+  Classes dominantes: [9 3 7] ([2078  455  192])
+Client 15: 3000 échantillons
+  Classes dominantes: [8 2 7] ([1395  635  466])
+Client 16: 3000 échantillons
+  Classes dominantes: [0 3 1] ([1724  431  193])
+Client 17: 3000 échantillons
+  Classes dominantes: [5 9 7] ([941 750 447])
+Client 18: 3000 échantillons
+  Classes dominantes: [7 1 9] ([1511  458  323])
+Client 19: 3000 échantillons
+  Classes dominantes: [8 3 1] ([922 884 412])
+==================================================
+✓ 20 clients configurés
+✓ Données de test: 2 échantillons
+🔄 Comparaison de toutes les méthodes...
+
+==================================================
+🌐 Entraînement FL Vanilla (FedAvg)...
+  Round 1/10
+    Accuracy: 0.7802, Comm Cost: 40, Time: 79.75s
+  Round 2/10
+    Accuracy: 0.8614, Comm Cost: 40, Time: 38.62s
+  Round 3/10
+    Accuracy: 0.8834, Comm Cost: 40, Time: 37.74s
+  Round 4/10
+    Accuracy: 0.9128, Comm Cost: 40, Time: 37.12s
+  Round 5/10
+    Accuracy: 0.9351, Comm Cost: 40, Time: 37.04s
+  Round 6/10
+    Accuracy: 0.9461, Comm Cost: 40, Time: 38.33s
+  Round 7/10
+    Accuracy: 0.9540, Comm Cost: 40, Time: 40.26s
+  Round 8/10
+    Accuracy: 0.9573, Comm Cost: 40, Time: 43.90s
+  Round 9/10
+    Accuracy: 0.9614, Comm Cost: 40, Time: 40.50s
+  Round 10/10
+    Accuracy: 0.9633, Comm Cost: 40, Time: 36.10s
+
+
+==================================================
+  Edge Server 0: Clients [0, 1, 2, 3]
+  Edge Server 1: Clients [4, 5, 6, 7]
+  Edge Server 2: Clients [8, 9, 10, 11]
+  Edge Server 3: Clients [12, 13, 14, 15]
+  Edge Server 4: Clients [16, 17, 18, 19]
+🏗️ Entraînement FL Hierarchical...
+Round 1/10
+  Accuracy: 0.8017, Temps: 67.46s, Comm: 50
+Round 2/10
+  Accuracy: 0.8649, Temps: 39.03s, Comm: 50
+Round 3/10
+  Accuracy: 0.9021, Temps: 38.01s, Comm: 50
+Round 4/10
+  Accuracy: 0.9088, Temps: 35.46s, Comm: 50
+Round 5/10
+  Accuracy: 0.9453, Temps: 39.82s, Comm: 50
+Round 6/10
+  Accuracy: 0.9535, Temps: 36.51s, Comm: 50
+Round 7/10
+  Accuracy: 0.9611, Temps: 36.73s, Comm: 50
+Round 8/10
+  Accuracy: 0.9640, Temps: 35.51s, Comm: 50
+Round 9/10
+  Accuracy: 0.9719, Temps: 37.76s, Comm: 50
+Round 10/10
+  Accuracy: 0.9727, Temps: 35.57s, Comm: 50
+
+==================================================
+  Edge Server 0: Clients [0, 1, 2, 3, 6, 15, 4] (avec drop-in)
+  Edge Server 1: Clients [4, 5, 6, 7, 19, 11, 2] (avec drop-in)
+  Edge Server 2: Clients [8, 9, 10, 11, 0, 18, 17] (avec drop-in)
+  Edge Server 3: Clients [12, 13, 14, 15, 7, 5, 9] (avec drop-in)
+  Edge Server 4: Clients [16, 17, 18, 19, 2, 13, 9] (avec drop-in)
+🏗️ Entraînement FL Drop-in...
+Round 1/10
+  Accuracy: 0.8090, Temps: 98.67s, Comm: 80
+Round 2/10
+  Accuracy: 0.8702, Temps: 64.36s, Comm: 80
+Round 3/10
+  Accuracy: 0.8983, Temps: 63.89s, Comm: 80
+Round 4/10
+  Accuracy: 0.9236, Temps: 63.18s, Comm: 80
+Round 5/10
+  Accuracy: 0.9428, Temps: 63.22s, Comm: 80
+Round 6/10
+  Accuracy: 0.9509, Temps: 63.45s, Comm: 80
+Round 7/10
+  Accuracy: 0.9584, Temps: 63.88s, Comm: 80
+Round 8/10
+  Accuracy: 0.9653, Temps: 64.45s, Comm: 80
+Round 9/10
+  Accuracy: 0.9665, Temps: 64.20s, Comm: 80
+Round 10/10
+  Accuracy: 0.9682, Temps: 71.04s, Comm: 80
+
+============================================================
+=== RÉSULTATS FINAUX - COMPARE ===
+============================================================
+Vanilla:
+  • Accuracy finale: 0.9633
+  • Temps moyen/round: 42.94s
+  • Coût communication total: 400
+
+Hierarchical:
+  • Accuracy finale: 0.9727
+  • Temps moyen/round: 40.19s
+  • Coût communication total: 500
+
+Drop_in:
+  • Accuracy finale: 0.9682
+  • Temps moyen/round: 68.03s
+  • Coût communication total: 800

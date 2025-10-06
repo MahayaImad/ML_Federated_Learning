@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-10-06T09:14:02.202788",
+  "configuration": {
+    "dataset": "mnist",
+    "comparison_type": "agglomerative",
+    "clients": 50,
+    "iid": false,
+    "epochs": 1,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  },
+  "results": {
+    "vanilla": {
+      "accuracy_history": [
+        0.8064000010490417
+      ],
+      "communication_costs": [
+        100
+      ],
+      "round_times": [
+        254.3655526638031
+      ]
+    },
+    "hierarchical": {
+      "method": "hierarchical",
+      "accuracy_history": [
+        0.7874000072479248
+      ],
+      "communication_costs": [
+        110
+      ],
+      "round_times": [
+        256.57086205482483
+      ]
+    },
+    "drop_in": {
+      "method": "hierarchical",
+      "accuracy_history": [
+        0.7821999788284302
+      ],
+      "communication_costs": [
+        140
+      ],
+      "round_times": [
+        274.13630843162537
+      ]
+    },
+    "agglomerative": {
+      "method": "hierarchical",
+      "accuracy_history": [
+        0.7055000066757202
+      ],
+      "communication_costs": [
+        42
+      ],
+      "round_times": [
+        72.32128357887268
+      ]
+    }
+  }
+}

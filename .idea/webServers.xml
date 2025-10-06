@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="93ccf68c-8a87-4ee8-ad05-71aedcac5cc9" name="remote-jetson">
+        <fileTransfer rootFolder="/home/imad" accessType="SFTP" host="mahaya.ddns.net" port="2222" sshConfigId="409ce9c0-e1ad-484d-8517-78be2db96265" sshConfig="imad@mahaya.ddns.net:2222 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

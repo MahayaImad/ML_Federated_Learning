@@ -1,0 +1,17 @@
+Hierarchical Aggregation Results: MNIST
+Method: unknown
+Configuration: 50 clients
+Training: 1 epochs
+Timestamp: 2025-10-06T09:03:55.415375
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.000000
+Total Training Time: 0.00s
+Average Time per Round: 0.00s
+Total Communication Cost: 0
+Convergence Rounds: 0
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------

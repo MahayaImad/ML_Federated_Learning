@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-10-06T09:08:12.691804",
+  "configuration": {
+    "dataset": "mnist",
+    "comparison_type": "hierarchical",
+    "clients": 50,
+    "iid": false,
+    "epochs": 1,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  },
+  "results": {
+    "hierarchical": {
+      "method": "hierarchical",
+      "accuracy_history": [
+        0.7874000072479248
+      ],
+      "communication_costs": [
+        110
+      ],
+      "round_times": [
+        256.57086205482483
+      ]
+    }
+  }
+}

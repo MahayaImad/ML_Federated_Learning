@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-10-06T09:12:47.717102",
+  "configuration": {
+    "dataset": "mnist",
+    "comparison_type": "drop-in",
+    "clients": 50,
+    "iid": false,
+    "epochs": 1,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  },
+  "results": {
+    "drop_in": {
+      "method": "hierarchical",
+      "accuracy_history": [
+        0.7821999788284302
+      ],
+      "communication_costs": [
+        140
+      ],
+      "round_times": [
+        274.13630843162537
+      ]
+    }
+  }
+}

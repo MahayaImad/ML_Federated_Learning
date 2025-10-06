@@ -1,0 +1,307 @@
+Hierarchical Aggregation Results: MNIST
+Method: agglomerative
+Configuration: 100 clients
+Training: 5 epochs
+Timestamp: 2025-10-04T23:07:27.606614
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.971900
+Total Training Time: 278.99s
+Average Time per Round: 27.90s
+Total Communication Cost: 700
+Convergence Rounds: 10
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.710400, Time=90.26s, Comm=70
+Round  2: Accuracy=0.853000, Time=20.52s, Comm=70
+Round  3: Accuracy=0.870900, Time=21.75s, Comm=70
+Round  4: Accuracy=0.942300, Time=21.29s, Comm=70
+Round  5: Accuracy=0.915300, Time=20.63s, Comm=70
+Round  6: Accuracy=0.957400, Time=20.93s, Comm=70
+Round  7: Accuracy=0.945900, Time=21.22s, Comm=70
+Round  8: Accuracy=0.966900, Time=20.14s, Comm=70
+Round  9: Accuracy=0.960700, Time=21.27s, Comm=70
+Round 10: Accuracy=0.971900, Time=20.99s, Comm=70
+
+
+root@59ffe887d919:/app/FL-aggregation-hierarchical# python main.py --hierarchy-type agglomerative --dataset mnist --clients 100 --round 10 --epochs 5 --client_selection_ratio 0.3 --verbose --plot
+🔄 Démarrage FL Aggregation Hierarchical...
+Type: agglomerative
+Clients: 100
+Edge Servers: 5
+Rounds: 10
+Distribution: Non-IID
+🎮 Utilisation du GPU: /physical_device:GPU:0
+
+📊 Préparation des données ...
+Préparation des données MNIST (Non-IID)
+
+==================================================
+DISTRIBUTION DES DONNÉES MNIST PAR CLIENT
+==================================================
+Client 0: 600 échantillons
+  Classes dominantes: [6 1 4] ([256 151  86])
+Client 1: 600 échantillons
+  Classes dominantes: [1 8 2] ([226 135  83])
+Client 2: 600 échantillons
+  Classes dominantes: [7 8 9] ([153 123  90])
+Client 3: 600 échantillons
+  Classes dominantes: [4 2 3] ([282 183  82])
+Client 4: 600 échantillons
+  Classes dominantes: [3 7 5] ([233 103  95])
+Client 5: 600 échantillons
+  Classes dominantes: [7 9 4] ([254 179  78])
+Client 6: 600 échantillons
+  Classes dominantes: [8 0 1] ([244  83  66])
+Client 7: 600 échantillons
+  Classes dominantes: [8 2 4] ([184 127  94])
+Client 8: 600 échantillons
+  Classes dominantes: [3 1 7] ([337 118  70])
+Client 9: 600 échantillons
+  Classes dominantes: [2 5 3] ([223 136 124])
+Client 10: 600 échantillons
+  Classes dominantes: [0 9 2] ([289 222  24])
+Client 11: 600 échantillons
+  Classes dominantes: [1 6 3] ([260  89  73])
+Client 12: 600 échantillons
+  Classes dominantes: [7 0 5] ([222 153  79])
+Client 13: 600 échantillons
+  Classes dominantes: [2 9 8] ([172 121  99])
+Client 14: 600 échantillons
+  Classes dominantes: [8 6 9] ([188 179  85])
+Client 15: 600 échantillons
+  Classes dominantes: [2 9 8] ([285 148  73])
+Client 16: 600 échantillons
+  Classes dominantes: [8 0 2] ([169 118  84])
+Client 17: 600 échantillons
+  Classes dominantes: [9 6 2] ([180 103 100])
+Client 18: 600 échantillons
+  Classes dominantes: [0 9 8] ([351  71  55])
+Client 19: 600 échantillons
+  Classes dominantes: [4 5 2] ([260 149  76])
+Client 20: 600 échantillons
+  Classes dominantes: [5 1 6] ([285  92  82])
+Client 21: 600 échantillons
+  Classes dominantes: [0 6 9] ([123 108 104])
+Client 22: 600 échantillons
+  Classes dominantes: [7 4 2] ([206 155 103])
+Client 23: 600 échantillons
+  Classes dominantes: [3 6 8] ([165 114 113])
+Client 24: 600 échantillons
+  Classes dominantes: [6 1 0] ([228 125  63])
+Client 25: 600 échantillons
+  Classes dominantes: [8 7 5] ([356 119  61])
+Client 26: 600 échantillons
+  Classes dominantes: [8 0 2] ([153 140 110])
+Client 27: 600 échantillons
+  Classes dominantes: [7 6 8] ([165 137 135])
+Client 28: 600 échantillons
+  Classes dominantes: [8 6 9] ([343  87  82])
+Client 29: 600 échantillons
+  Classes dominantes: [2 9 8] ([175 113 111])
+Client 30: 600 échantillons
+  Classes dominantes: [2 0 5] ([225 128  77])
+Client 31: 600 échantillons
+  Classes dominantes: [8 1 4] ([240 159  95])
+Client 32: 600 échantillons
+  Classes dominantes: [5 8 4] ([212  86  74])
+Client 33: 600 échantillons
+  Classes dominantes: [2 0 9] ([258 128  96])
+Client 34: 600 échantillons
+  Classes dominantes: [9 3 4] ([108 100  94])
+Client 35: 600 échantillons
+  Classes dominantes: [9 5 1] ([354 146  31])
+Client 36: 600 échantillons
+  Classes dominantes: [6 8 5] ([172 132 111])
+Client 37: 600 échantillons
+  Classes dominantes: [8 3 2] ([168 153 145])
+Client 38: 600 échantillons
+  Classes dominantes: [6 9 2] ([197 127  68])
+Client 39: 600 échantillons
+  Classes dominantes: [0 1 2] ([190 113  77])
+Client 40: 600 échantillons
+  Classes dominantes: [0 1 4] ([206 177  83])
+Client 41: 600 échantillons
+  Classes dominantes: [1 3 0] ([304 159  49])
+Client 42: 600 échantillons
+  Classes dominantes: [2 5 0] ([234 124  70])
+Client 43: 600 échantillons
+  Classes dominantes: [9 8 0] ([274 106  60])
+Client 44: 600 échantillons
+  Classes dominantes: [5 6 7] ([180 125 101])
+Client 45: 600 échantillons
+  Classes dominantes: [7 5 8] ([327  56  52])
+Client 46: 600 échantillons
+  Classes dominantes: [1 8 6] ([217 151  88])
+Client 47: 600 échantillons
+  Classes dominantes: [4 0 5] ([220 137  55])
+Client 48: 600 échantillons
+  Classes dominantes: [2 1 8] ([130 118 117])
+Client 49: 600 échantillons
+  Classes dominantes: [8 4 1] ([253 197  80])
+Client 50: 600 échantillons
+  Classes dominantes: [2 6 4] ([432  46  27])
+Client 51: 600 échantillons
+  Classes dominantes: [9 8 2] ([341  64  50])
+Client 52: 600 échantillons
+  Classes dominantes: [4 2 3] ([173 141  95])
+Client 53: 600 échantillons
+  Classes dominantes: [4 5 7] ([243 108  84])
+Client 54: 600 échantillons
+  Classes dominantes: [2 5 4] ([232  92  54])
+Client 55: 600 échantillons
+  Classes dominantes: [5 3 6] ([219 132  74])
+Client 56: 600 échantillons
+  Classes dominantes: [2 6 7] ([244 170  97])
+Client 57: 600 échantillons
+  Classes dominantes: [7 2 5] ([182 121  93])
+Client 58: 600 échantillons
+  Classes dominantes: [4 8 1] ([191 172  73])
+Client 59: 600 échantillons
+  Classes dominantes: [3 6 2] ([202 191  87])
+Client 60: 600 échantillons
+  Classes dominantes: [9 5 2] ([189 167  74])
+Client 61: 600 échantillons
+  Classes dominantes: [6 8 7] ([278 127 101])
+Client 62: 600 échantillons
+  Classes dominantes: [7 6 2] ([170 150 119])
+Client 63: 600 échantillons
+  Classes dominantes: [8 5 2] ([207 138 116])
+Client 64: 600 échantillons
+  Classes dominantes: [7 1 9] ([167 146 110])
+Client 65: 600 échantillons
+  Classes dominantes: [5 1 6] ([241 127  69])
+Client 66: 600 échantillons
+  Classes dominantes: [1 5 9] ([250 240  56])
+Client 67: 600 échantillons
+  Classes dominantes: [7 0 4] ([124  98  96])
+Client 68: 600 échantillons
+  Classes dominantes: [1 6 5] ([240  77  56])
+Client 69: 600 échantillons
+  Classes dominantes: [6 3 5] ([220 136  83])
+Client 70: 600 échantillons
+  Classes dominantes: [1 6 9] ([230 121  83])
+Client 71: 600 échantillons
+  Classes dominantes: [1 7 3] ([340  87  64])
+Client 72: 600 échantillons
+  Classes dominantes: [5 6 1] ([287  97  57])
+Client 73: 600 échantillons
+  Classes dominantes: [7 6 2] ([260 116  82])
+Client 74: 600 échantillons
+  Classes dominantes: [0 1 9] ([269 173  78])
+Client 75: 600 échantillons
+  Classes dominantes: [5 2 7] ([159 124  91])
+Client 76: 600 échantillons
+  Classes dominantes: [9 7 2] ([311 152  66])
+Client 77: 600 échantillons
+  Classes dominantes: [1 2 6] ([193 175  87])
+Client 78: 600 échantillons
+  Classes dominantes: [7 8 5] ([170 124 108])
+Client 79: 600 échantillons
+  Classes dominantes: [7 4 2] ([161 122 120])
+Client 80: 600 échantillons
+  Classes dominantes: [6 3 7] ([185 119  88])
+Client 81: 600 échantillons
+  Classes dominantes: [8 1 7] ([154 138  95])
+Client 82: 600 échantillons
+  Classes dominantes: [6 4 1] ([206 119  84])
+Client 83: 600 échantillons
+  Classes dominantes: [6 5 1] ([239 191  86])
+Client 84: 600 échantillons
+  Classes dominantes: [4 8 7] ([159 120  87])
+Client 85: 600 échantillons
+  Classes dominantes: [0 6 7] ([272 175  78])
+Client 86: 600 échantillons
+  Classes dominantes: [8 4 0] ([160 145 135])
+Client 87: 600 échantillons
+  Classes dominantes: [7 6 1] ([196 164  87])
+Client 88: 600 échantillons
+  Classes dominantes: [6 3 1] ([187 109  86])
+Client 89: 600 échantillons
+  Classes dominantes: [1 8 7] ([351 105  58])
+Client 90: 600 échantillons
+  Classes dominantes: [2 0 4] ([166 119 106])
+Client 91: 600 échantillons
+  Classes dominantes: [1 9 7] ([168 130 116])
+Client 92: 600 échantillons
+  Classes dominantes: [4 7 3] ([233 144  88])
+Client 93: 600 échantillons
+  Classes dominantes: [5 4 9] ([189 169 150])
+Client 94: 600 échantillons
+  Classes dominantes: [1 3 8] ([302 210  30])
+Client 95: 600 échantillons
+  Classes dominantes: [8 7 9] ([263  94  65])
+Client 96: 600 échantillons
+  Classes dominantes: [4 8 5] ([212 121  96])
+Client 97: 600 échantillons
+  Classes dominantes: [1 9 0] ([178 103 102])
+Client 98: 600 échantillons
+  Classes dominantes: [4 9 8] ([172 167 112])
+Client 99: 600 échantillons
+  Classes dominantes: [7 4 9] ([429  68  36])
+==================================================
+✓ 100 clients configurés
+✓ Données de test: 2 échantillons
+
+📊 Analyse des distances JS:
+  Distance min: 0.1602
+  Distance max: 0.7846
+  Distance moyenne: 0.5267
+  Distance médiane: 0.5318
+  Percentile 25%: 0.4605
+  Percentile 75%: 0.5977
+  Edge Server 0: 8/27 clients sélectionnés
+    Clients actifs: [0, 11, 17, 20, 21, 24, 34, 35] (Cluster JS)
+  Edge Server 1: 2/9 clients sélectionnés
+    Clients actifs: [1, 4] (Cluster JS)
+  Edge Server 2: 3/12 clients sélectionnés
+    Clients actifs: [2, 14, 23] (Cluster JS)
+  Edge Server 3: 3/11 clients sélectionnés
+    Clients actifs: [3, 7, 19] (Cluster JS)
+  Edge Server 4: 4/15 clients sélectionnés
+    Clients actifs: [5, 12, 22, 52] (Cluster JS)
+  Edge Server 5: 5/19 clients sélectionnés
+    Clients actifs: [6, 9, 13, 15, 16] (Cluster JS)
+  Edge Server 6: 1/5 clients sélectionnés
+    Clients actifs: [10] (Cluster JS)
+  Edge Server 7: 1/2 clients sélectionnés
+    Clients actifs: [31] (Cluster JS)
+  Nombre de clusters formés: 8
+  Seuil JS utilisé: 0.5
+🏗️ Entraînement FL Hierarchical...
+Round 1/10
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1759618980.346225   58979 service.cc:145] XLA service 0x7399a0e48e20 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+I0000 00:00:1759618980.346303   58979 service.cc:153]   StreamExecutor device (0): NVIDIA T550 Laptop GPU, Compute Capability 7.5
+I0000 00:00:1759618980.429070   58979 device_compiler.h:188] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+  Accuracy: 0.7104, Temps: 90.26s, Comm: 70
+Round 2/10
+  Accuracy: 0.8530, Temps: 20.52s, Comm: 70
+Round 3/10
+  Accuracy: 0.8709, Temps: 21.75s, Comm: 70
+Round 4/10
+  Accuracy: 0.9423, Temps: 21.29s, Comm: 70
+Round 5/10
+  Accuracy: 0.9153, Temps: 20.63s, Comm: 70
+Round 6/10
+  Accuracy: 0.9574, Temps: 20.93s, Comm: 70
+Round 7/10
+  Accuracy: 0.9459, Temps: 21.22s, Comm: 70
+Round 8/10
+  Accuracy: 0.9669, Temps: 20.14s, Comm: 70
+Round 9/10
+  Accuracy: 0.9607, Temps: 21.27s, Comm: 70
+Round 10/10
+  Accuracy: 0.9719, Temps: 20.99s, Comm: 70
+
+
+============================================================
+=== RÉSULTATS FINAUX - AGGLOMERATIVE ===
+============================================================
+Accuracy finale: 0.9719
+Temps moyen par round: 27.90s
+Coût communication total: 700
+

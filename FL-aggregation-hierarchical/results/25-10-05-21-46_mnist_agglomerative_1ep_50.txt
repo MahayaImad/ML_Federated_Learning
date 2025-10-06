@@ -1,0 +1,198 @@
+Hierarchical Aggregation Results: MNIST
+Method: agglomerative
+Configuration: 50 clients
+Training: 1 epochs
+Timestamp: 2025-10-05T21:46:14.087073
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.975400
+Total Training Time: 239.73s
+Average Time per Round: 23.97s
+Total Communication Cost: 420
+Convergence Rounds: 10
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.754200, Time=59.73s, Comm=42
+Round  2: Accuracy=0.856600, Time=16.07s, Comm=42
+Round  3: Accuracy=0.933900, Time=17.44s, Comm=42
+Round  4: Accuracy=0.943200, Time=15.53s, Comm=42
+Round  5: Accuracy=0.954900, Time=17.85s, Comm=42
+Round  6: Accuracy=0.962100, Time=15.26s, Comm=42
+Round  7: Accuracy=0.966600, Time=16.75s, Comm=42
+Round  8: Accuracy=0.969600, Time=23.57s, Comm=42
+Round  9: Accuracy=0.971100, Time=23.82s, Comm=42
+Round 10: Accuracy=0.975400, Time=33.72s, Comm=42
+
+root@c39b53b96b06:/app/FL-aggregation-hierarchical# python main.py --hierarchy-type agglomerative --dataset mnist --clients 50 --round 10 --epochs 1 --client_selection_ratio 0.3 --verbose --plot
+🔄 Démarrage FL Aggregation Hierarchical...
+Type: agglomerative
+Clients: 50
+Edge Servers: 5
+Rounds: 10
+Distribution: Non-IID
+🎮 Utilisation du GPU: /physical_device:GPU:0
+
+
+==================================================
+DISTRIBUTION DES DONNÉES MNIST PAR CLIENT
+==================================================
+Client 0: 1200 échantillons
+  Classes dominantes: [6 1 4] ([508 302 172])
+Client 1: 1200 échantillons
+  Classes dominantes: [0 1 6] ([460 313 203])
+Client 2: 1200 échantillons
+  Classes dominantes: [8 0 6] ([751 198 118])
+Client 3: 1200 échantillons
+  Classes dominantes: [2 8 1] ([313 272 210])
+Client 4: 1200 échantillons
+  Classes dominantes: [8 2 6] ([415 357 311])
+Client 5: 1200 échantillons
+  Classes dominantes: [1 9 3] ([408 211 180])
+Client 6: 1200 échantillons
+  Classes dominantes: [7 1 8] ([399 235 203])
+Client 7: 1200 échantillons
+  Classes dominantes: [0 3 1] ([416 279 116])
+Client 8: 1200 échantillons
+  Classes dominantes: [3 9 6] ([501 258 163])
+Client 9: 1200 échantillons
+  Classes dominantes: [9 3 6] ([699 186 142])
+Client 10: 1200 échantillons
+  Classes dominantes: [5 2 4] ([367 252 215])
+Client 11: 1200 échantillons
+  Classes dominantes: [9 1 4] ([401 193 141])
+Client 12: 1200 échantillons
+  Classes dominantes: [6 1 7] ([463 439 117])
+Client 13: 1200 échantillons
+  Classes dominantes: [1 9 3] ([828 130  86])
+Client 14: 1200 échantillons
+  Classes dominantes: [9 4 3] ([430 163 159])
+Client 15: 1200 échantillons
+  Classes dominantes: [5 7 2] ([366 254 231])
+Client 16: 1200 échantillons
+  Classes dominantes: [8 9 7] ([491 343 243])
+Client 17: 1200 échantillons
+  Classes dominantes: [3 7 6] ([541 219 166])
+Client 18: 1200 échantillons
+  Classes dominantes: [2 1 3] ([473 332 229])
+Client 19: 1200 échantillons
+  Classes dominantes: [8 5 0] ([366 326 128])
+Client 20: 1200 échantillons
+  Classes dominantes: [9 8 3] ([686 234  94])
+Client 21: 1200 échantillons
+  Classes dominantes: [4 7 2] ([450 366 122])
+Client 22: 1200 échantillons
+  Classes dominantes: [8 4 6] ([456 265 235])
+Client 23: 1200 échantillons
+  Classes dominantes: [0 7 1] ([659 272  82])
+Client 24: 1200 échantillons
+  Classes dominantes: [7 5 2] ([439 171 146])
+Client 25: 1200 échantillons
+  Classes dominantes: [1 0 6] ([422 272 231])
+Client 26: 1200 échantillons
+  Classes dominantes: [1 4 0] ([356 336 184])
+Client 27: 1200 échantillons
+  Classes dominantes: [3 1 7] ([474 293 116])
+Client 28: 1200 échantillons
+  Classes dominantes: [9 3 4] ([493 239 197])
+Client 29: 1200 échantillons
+  Classes dominantes: [5 1 7] ([407 251 189])
+Client 30: 1200 échantillons
+  Classes dominantes: [7 1 6] ([467 380 141])
+Client 31: 1200 échantillons
+  Classes dominantes: [9 6 7] ([930  86  70])
+Client 32: 1200 échantillons
+  Classes dominantes: [0 8 1] ([414 273 179])
+Client 33: 1200 échantillons
+  Classes dominantes: [5 9 0] ([402 218 150])
+Client 34: 1200 échantillons
+  Classes dominantes: [9 3 7] ([497 374 148])
+Client 35: 1200 échantillons
+  Classes dominantes: [6 5 2] ([652 217 159])
+Client 36: 1200 échantillons
+  Classes dominantes: [8 3 9] ([513 385  96])
+Client 37: 1200 échantillons
+  Classes dominantes: [9 2 8] ([398 207 192])
+Client 38: 1200 échantillons
+  Classes dominantes: [2 9 3] ([269 228 138])
+Client 39: 1200 échantillons
+  Classes dominantes: [9 7 2] ([285 235 198])
+Client 40: 1200 échantillons
+  Classes dominantes: [4 1 6] ([194 183 182])
+Client 41: 1200 échantillons
+  Classes dominantes: [4 3 0] ([485 252 191])
+Client 42: 1200 échantillons
+  Classes dominantes: [9 1 8] ([339 242 224])
+Client 43: 1200 échantillons
+  Classes dominantes: [5 7 8] ([416 368 241])
+Client 44: 1200 échantillons
+  Classes dominantes: [4 9 8] ([626 173 158])
+Client 45: 1200 échantillons
+  Classes dominantes: [8 4 3] ([803  97  76])
+Client 46: 1200 échantillons
+  Classes dominantes: [7 9 1] ([381 338 294])
+Client 47: 1200 échantillons
+  Classes dominantes: [0 4 2] ([391 287 199])
+Client 48: 1200 échantillons
+  Classes dominantes: [7 8 4] ([367 231 231])
+Client 49: 1200 échantillons
+  Classes dominantes: [9 4 8] ([805 258  48])
+==================================================
+✓ 50 clients configurés
+✓ Données de test: 2 échantillons
+
+📊 Analyse des distances JS:
+  Distance min: 0.1902
+  Distance max: 0.7766
+  Distance moyenne: 0.5303
+  Distance médiane: 0.5357
+  Percentile 25%: 0.4597
+  Percentile 75%: 0.6073
+  Edge Server 0: 2/9 clients sélectionnés
+    Clients actifs: [0, 1] (Cluster JS)
+  Edge Server 1: 2/7 clients sélectionnés
+    Clients actifs: [2, 4] (Cluster JS)
+  Edge Server 2: 3/10 clients sélectionnés
+    Clients actifs: [3, 10, 15] (Cluster JS)
+  Edge Server 3: 4/15 clients sélectionnés
+    Clients actifs: [5, 6, 9, 11] (Cluster JS)
+  Edge Server 4: 1/4 clients sélectionnés
+    Clients actifs: [8] (Cluster JS)
+  Edge Server 5: 1/4 clients sélectionnés
+    Clients actifs: [21] (Cluster JS)
+  Edge Server 6: 1/1 clients sélectionnés
+    Clients actifs: [35] (Cluster JS)
+  Nombre de clusters formés: 7
+  Seuil JS utilisé: 0.5
+🏗️ Entraînement FL Hierarchical...
+Round 1/10
+  Accuracy: 0.7542, Temps: 59.73s, Comm: 42
+Round 2/10
+  Accuracy: 0.8566, Temps: 16.07s, Comm: 42
+Round 3/10
+  Accuracy: 0.9339, Temps: 17.44s, Comm: 42
+Round 4/10
+  Accuracy: 0.9432, Temps: 15.53s, Comm: 42
+Round 5/10
+  Accuracy: 0.9549, Temps: 17.85s, Comm: 42
+Round 6/10
+  Accuracy: 0.9621, Temps: 15.26s, Comm: 42
+Round 7/10
+  Accuracy: 0.9666, Temps: 16.75s, Comm: 42
+Round 8/10
+  Accuracy: 0.9696, Temps: 23.57s, Comm: 42
+Round 9/10
+  Accuracy: 0.9711, Temps: 23.82s, Comm: 42
+Round 10/10
+  Accuracy: 0.9754, Temps: 33.72s, Comm: 42
+
+
+============================================================
+=== RÉSULTATS FINAUX - AGGLOMERATIVE ===
+============================================================
+Accuracy finale: 0.9754
+Temps moyen par round: 23.97s
+Coût communication total: 420
+

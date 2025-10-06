@@ -1,0 +1,37 @@
+Comparison Results: MNIST, all
+Configuration: 5 clients, IID
+Training: 20 epochs, batch_size=32, lr=0.001
+Timestamp: 2025-09-19T22:36:57.380826
+============================================================
+
+Method: Centralized
+  Final Accuracy: 0.991700
+  Training Time: 162.18s
+  Communication Cost: 0
+  Convergence Round: 20
+
+Method: FL_FedAvg
+  Final Accuracy: 0.994100
+  Training Time: 439.04s
+  Communication Cost: 200
+  Convergence Round: 20
+
+Method: Distributed
+  Final Accuracy: 0.986540
+  Training Time: 134.57s
+  Communication Cost: 0
+  Convergence Round: 20
+  Accuracy Std: 0.001141
+
+Method: FL_Cyclic_Weighted
+  Final Accuracy: 0.992000
+  Training Time: 201.31s
+  Communication Cost: 80
+  Convergence Round: 20
+
+Method: FL_Ensemble
+  Final Accuracy: 0.992300
+  Training Time: 470.55s
+  Communication Cost: 600
+  Convergence Round: 20
+

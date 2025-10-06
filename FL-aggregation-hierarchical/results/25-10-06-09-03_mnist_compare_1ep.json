@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-10-06T09:03:55.416514",
+  "configuration": {
+    "dataset": "mnist",
+    "comparison_type": "compare",
+    "clients": 50,
+    "iid": false,
+    "epochs": 1,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  },
+  "results": {
+    "vanilla": {
+      "accuracy_history": [
+        0.8064000010490417
+      ],
+      "communication_costs": [
+        100
+      ],
+      "round_times": [
+        254.3655526638031
+      ]
+    }
+  }
+}

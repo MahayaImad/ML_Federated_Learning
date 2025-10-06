@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="mahaya.ddns.net" id="409ce9c0-e1ad-484d-8517-78be2db96265" port="2222" nameFormat="DESCRIPTIVE" username="imad" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>

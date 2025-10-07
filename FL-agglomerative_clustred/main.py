@@ -132,9 +132,9 @@ def setup_hierarchy(clients_data, args):
 
 def train_vanilla_fl(clients, test_data, args):
     """Entraînement FL vanilla (FedAvg classique)"""
-    print(" Entraînement FL Vanilla (FedAvg)...")
+    print(" Train of Vanilla FL (FedAvg)...")
 
-    global_model = initialize_global_model(args.dataset, args.lr)
+    global_model =  initialize_global_model(args.dataset, args.lr)
     aggregator = FedAvgAggregator()
 
     results = {
@@ -189,7 +189,7 @@ def train_vanilla_fl(clients, test_data, args):
 
 def train_hierarchical(clients, test_data, edge_servers, hierarchical_server, args):
 
-    print(f" Entraînement FL {args.hierarchy_type}...")
+    print(f" Train of FL {args.hierarchy_type}...")
 
     global_model = initialize_global_model(args.dataset, args.lr)
     initialize_edge_models(edge_servers, args.dataset, global_model, args.lr)

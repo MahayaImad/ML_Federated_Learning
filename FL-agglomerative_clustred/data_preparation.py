@@ -188,15 +188,15 @@ def _print_data_info(client_info, dataset="CIFAR-10"):
     print("-" * 50)
 
 
-def number_classes(dataset="CIFAR-10"):
-    if dataset == "CIFAR-10" or dataset == "mnist":
+def number_classes(dataset="cifar10"):
+    if dataset == "cifar10" or dataset == "mnist":
         return 10
     else: # CIFAR-100
         return 100
 
 
-def data_shape(dataset="CIFAR-10"):
-    if dataset == "CIFAR-10" or dataset == "CIFAR-100":
+def data_shape(dataset="cifar10"):
+    if dataset == "cifar10" or dataset == "cifar100":
         return (32, 32, 3)
     else: # mnist
         return (28, 28, 1)

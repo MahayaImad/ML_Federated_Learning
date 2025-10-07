@@ -128,3 +128,17 @@ def weighted_average(updates, weights):
         averaged_update.append(weighted_sum)
 
     return averaged_update
+
+def subtract_weights(weights1, weights2):
+    """Soustrait weights2 de weights1"""
+    return [w1 - w2 for w1, w2 in zip(weights1, weights2)]
+
+
+def add_weights(weights1, weights2):
+    """Additionne weights1 et weights2"""
+    return [w1 + w2 for w1, w2 in zip(weights1, weights2)]
+
+
+def scale_weights(weights, factor):
+    """Multiplie les poids par un facteur"""
+    return [w * factor for w in weights]

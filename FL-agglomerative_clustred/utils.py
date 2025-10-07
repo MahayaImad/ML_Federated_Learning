@@ -56,7 +56,7 @@ def _save_detailed_results(results, args, log_path):
             f.write(f"Method: {results.get('method', 'unknown')}\n")
             f.write(f"Configuration: {getattr(args, 'clients', 'N/A')} clients\n")
             f.write(f"Data Distribution: {getattr(args, 'iid', 'N/A')} iid\n")
-            f.write(f"Training: {getattr(args, 'epochs', 'N/A')} epochs\n")
+            f.write(f"Training: {getattr(args, 'local_epochs', 'N/A')} local_epochs\n")
             f.write(f"Training: {getattr(args, 'rounds', 'N/A')} rounds\n")
             f.write(f"Model: {getattr(args, 'lr', 'N/A')} Learning rate\n")
             f.write(f"Model: {getattr(args, 'batch_size', 'N/A')} batch_size\n")
@@ -93,7 +93,7 @@ def _save_detailed_results(results, args, log_path):
                 f.write(f"Round {round_num:2d}: Accuracy={acc:.6f}, Time={time_val:.2f}s, Comm={comm}\n")
 
     except Exception as e:
-        print(f"❌ Erreur sauvegarde résultats: {e}")
+        print(f"Erreur sauvegarde résultats: {e}")
         import traceback
         traceback.print_exc()
 
@@ -170,7 +170,6 @@ def _plot_comparison_results(results, args, plot_path):
         plt.tight_layout()
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f"Graphique sauvegardé: {plot_path}")
 
     except Exception as e:
         print(f"Erreur création graphique: {e}")
@@ -221,7 +220,8 @@ def save_client_stats_csv(clients, args):
         filepath: Path to saved CSV file
     """
     # Create directory
-    stats_dir = os.path.join('results', 'client_stats')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    stats_dir = os.path.join(base_dir, 'results')
     os.makedirs(stats_dir, exist_ok=True)
 
     # Generate filename

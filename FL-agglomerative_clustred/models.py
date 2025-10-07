@@ -90,7 +90,7 @@ def copy_model(model, learning_rate=0.001):
 
 def initialize_global_model(dataset_name, learning_rate=0.001):
 
-    input_shape = data_shape()
+    input_shape = data_shape(dataset_name)
 
     # Create model
     model = create_model(dataset_name, input_shape)
@@ -107,7 +107,7 @@ def initialize_global_model(dataset_name, learning_rate=0.001):
 
 def initialize_edge_models(edge_servers, dataset_name, global_model, learning_rate=0.001):
 
-    input_shape = data_shape()
+    input_shape = data_shape(dataset_name)
 
     for edge in edge_servers:
         if edge.local_model is None:

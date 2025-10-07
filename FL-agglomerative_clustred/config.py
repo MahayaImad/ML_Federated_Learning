@@ -11,7 +11,7 @@ EDGE_SERVERS = 5
 # Configuration of training
 COMMUNICATION_ROUNDS = 10
 LOCAL_EPOCHS = 1
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 LEARNING_RATE = 0.001
 
 # Saving clients results

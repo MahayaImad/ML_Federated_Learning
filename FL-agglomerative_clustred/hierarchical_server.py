@@ -79,7 +79,7 @@ def setup_standard_hierarchy(clients_data, num_edge_servers, verbose=False):
         edge_servers.append(EdgeServer(i, client_ids))
 
         if verbose:
-            print(f"  Edge Server {i}: {len(client_ids)} clients")
+            print(f"  Edge Server {i}: {len(client_ids)} clients : {client_ids}")
 
     return edge_servers, HierarchicalServer(edge_servers)
 
@@ -136,7 +136,7 @@ def setup_agglomerative_hierarchy(clients_data, js_threshold,
         edge_servers.append(EdgeServer(edge_id, selected))
 
         if verbose:
-            print(f"  Edge {edge_id}: {len(selected)}/{len(client_ids)} clients")
+            print(f"  Edge {edge_id}: {len(selected)}/{len(client_ids)} clients : {client_ids}")
 
     if verbose:
         print(f"  Total clusters: {len(clusters)}, JS threshold: {js_threshold}")
@@ -181,7 +181,7 @@ def setup_dropin_hierarchy(clients_data, num_edge_servers, verbose=False):
         edge_servers.append(EdgeServer(i, client_ids))
 
         if verbose:
-            print(f"  Edge {i}: {len(client_ids)} clients (with duplicates)")
+            print(f"  Edge {i}: {len(client_ids)} clients (with duplicates) : {client_ids}")
 
     return edge_servers, HierarchicalServer(edge_servers)
 

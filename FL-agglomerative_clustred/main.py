@@ -21,7 +21,7 @@ import matplotlib
 matplotlib.use('Agg')
 import time
 
-from data_preparation import prepare_federated_cifar10, prepare_federated_mnist, number_classes
+from data_preparation import prepare_federated_cifar10,prepare_federated_cifar100, prepare_federated_mnist, number_classes
 from models import create_model, initialize_global_model, initialize_edge_models
 from hierarchical_server import setup_vanilla_fl, setup_standard_hierarchy, setup_dropin_hierarchy, setup_agglomerative_hierarchy
 from client import FederatedClient
@@ -58,7 +58,7 @@ Types d'entraînement disponibles:
                         help='Type d\'entraînement hiérarchique')
 
     parser.add_argument('--dataset', type=str, required=True,
-                        choices=['mnist', 'cifar10'],
+                        choices=['mnist', 'cifar10', 'cifar100'],
                         help='Dataset à utiliser (mnist: 28x28 N&B, cifar: 32x32 couleur)')
 
     # Arguments optionnels
@@ -405,6 +405,11 @@ def main():
     if args.dataset == 'cifar10':
         fed_data, test_data, _ = prepare_federated_cifar10(iid=args.iid, num_clients=args.clients)
         print(f"Setup complete: {len(fed_data)} clients, {len(test_data[0])} test samples")
+
+    elif args.dataset == 'cifar100':
+        fed_data, test_data, _ = prepare_federated_cifar100(iid=args.iid, num_clients=args.clients)
+        print(f"Setup complete: {len(fed_data)} clients, {len(test_data[0])} test samples")
+
     elif args.dataset == 'mnist':
         fed_data, test_data, _ = prepare_federated_mnist(iid=args.iid, num_clients=args.clients)
         print(f"Setup complete: {len(fed_data)} clients, {len(test_data[0])} test samples")

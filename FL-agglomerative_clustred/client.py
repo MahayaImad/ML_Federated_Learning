@@ -3,6 +3,7 @@ Federated learning client simulation
 """
 import tensorflow as tf
 import numpy as np
+from models import copy_model
 
 
 class FederatedClient:
@@ -24,11 +25,11 @@ class FederatedClient:
     def update_model(self, global_model):
         """Updates local model with global model weights"""
         if self.local_model is None:
-            from models import copy_model
             self.local_model = copy_model(global_model, self.learning_rate)
         else:
             self.local_model.set_weights(global_model.get_weights())
         self.global_model_ref = global_model
+
 
     def train_local(self,epochs=1):
         """Local training with time tracking"""

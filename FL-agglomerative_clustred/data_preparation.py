@@ -55,6 +55,56 @@ def prepare_federated_cifar10(iid=True, alpha=0.5, num_clients = 10):
 
     return fed_data, test_data, client_info
 
+
+def prepare_federated_cifar100(iid=True, alpha=0.5, num_clients=10):
+    """
+    Prépare CIFAR-100 pour l'apprentissage fédéré
+
+    Args:
+        iid: Si True, distribution IID. Si False, non-IID
+        alpha: Paramètre de concentration Dirichlet pour non-IID
+        num_clients: Nombre de clients
+
+    Returns:
+        fed_data: données fédérées par client
+        test_data: données de test centralisées
+        client_info: informations sur chaque client
+    """
+    print(f"Préparation des données CIFAR-100 ({'IID' if iid else 'Non-IID'})")
+
+    # Charger CIFAR-100
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+
+    # Normalisation
+    x_train = x_train.astype('float32') / 255.0
+    x_test = x_test.astype('float32') / 255.0
+
+    # One-hot encoding
+    y_train = tf.keras.utils.to_categorical(y_train, 100)
+    y_test = tf.keras.utils.to_categorical(y_test, 100)
+
+    # Données de test centralisées
+    test_data = (x_test, y_test)
+
+    if iid:
+        fed_data = _create_iid_split(x_train, y_train, num_clients)
+    else:
+        fed_data = _create_non_iid_split(x_train, y_train, alpha, num_clients, num_classes=100)
+
+    # Informations sur les clients
+    client_info = []
+    for i, (x_client, y_client) in enumerate(fed_data):
+        class_distribution = np.sum(y_client, axis=0)
+        client_info.append({
+            'client_id': i,
+            'num_samples': len(x_client),
+            'class_distribution': class_distribution
+        })
+
+    _print_data_info(client_info, dataset="CIFAR-100", num_classes=100)
+
+    return fed_data, test_data, client_info
+
 def prepare_federated_mnist(iid=True, alpha=0.5, num_clients =10):
     """
     Data preparation for federated learning experiments

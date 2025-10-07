@@ -1,14 +1,3 @@
-"""
-Script principal pour comparaison FL Vanilla vs Hierarchical vs Drop-in
-Usage: python main.py --hierarchy-type hierarchical --clients 20 --edge-servers 5
-
-Exemples rapides:
-  python main.py --hierarchy-type vanilla --clients 20 --epochs 30
-  python main.py --hierarchy-type hierarchical --clients 20 --edge-servers 5
-  python main.py --hierarchy-type drop-in --clients 20 --edge-servers 5 --epochs 40
-  python main.py --hierarchy-type compare --clients 20 --edge-servers 5 --verbose
-"""
-
 import argparse
 import warnings
 warnings.filterwarnings('ignore')
@@ -39,16 +28,22 @@ def parse_arguments():
 Types d'entraînement disponibles:
 
   🔹 Vanilla FL:
-     python main.py --hierarchy-type vanilla --clients 20 --epochs 30
+     python main.py --hierarchy-type vanilla --dataset mnist --clients 20 --rounds 20
 
   🔹 Hierarchical FL:
-     python main.py --hierarchy-type hierarchical --clients 20 --edge-servers 5
+     python main.py --hierarchy-type hierarchical --dataset cifar10 \
+    --clients 20 --edge-servers 5 --rounds 20
 
   🔹 Drop-in Hierarchical FL:
      python main.py --hierarchy-type drop-in --clients 20 --edge-servers 5
+     
+  🔹 Agglomerative clustering (data-driven)
+     python main.py --hierarchy-type agglomerative --dataset cifar100 \
+     --clients 30 --js-threshold 0.5 --selection-ratio 0.3 --rounds 25
 
   🔹 Comparaison complète:
-     python main.py --hierarchy-type compare --clients 20 --edge-servers 5 --verbose
+     python main.py --hierarchy-type compare --dataset mnist \
+    --clients 20 --edge-servers 5 --rounds 20 
         """
     )
 

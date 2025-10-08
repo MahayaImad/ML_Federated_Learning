@@ -54,20 +54,19 @@ Hierarchical + shared clients across edges for robustness.
 
 ##  Command-Line Arguments
 
-| Argument | Options | Default | Description |
-|----------|---------|---------|-------------|
+| Argument | Options | Default      | Description |
+|----------|---------|--------------|-------------|
 | `--hierarchy-type` | vanilla, hierarchical, drop-in, agglomerative, compare | **required** | FL architecture |
 | `--dataset` | mnist, cifar10, cifar100 | **required** | Dataset to use |
-| `--clients` | int | 20 | Number of clients |
-| `--edge-servers` | int | 5 | Edge servers (hierarchical/drop-in) |
-| `--js-threshold` | float | 0.5 | JS clustering threshold |
-| `--selection-ratio` | float | 0.3 | % clients per cluster |
-| `--rounds` | int | 20 | Communication rounds |
-| `--local-epochs` | int | 5 | Local training epochs |
-| `--batch-size` | int | 32 | Batch size |
-| `--lr` | float | 0.001 | Learning rate |
-| `--iid` | flag | False | IID distribution |
-| `--gpu` | int | 0 | GPU id (-1=CPU) |
+| `--clients` | int | 20           | Number of clients |
+| `--edge-servers` | int | 5            | Edge servers (hierarchical/drop-in) |
+| `--js-threshold` | float | 0.5          | JS clustering threshold |
+| `--selection-ratio` | float | 0.3          | % clients per cluster |
+| `--rounds` | int | 20           | Communication rounds |
+| `--local-epochs` | int | 5            | Local training epochs |
+| `--batch-size` | int | 64            | Batch size |
+| `--iid` | flag | False        | IID distribution |
+| `--gpu` | int | 0            | GPU id (-1=CPU) |
 
 ## Evaluated Metrics
 

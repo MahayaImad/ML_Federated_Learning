@@ -1,6 +1,3 @@
-"""
-Modèles pour comparaisons FL vs autres méthodes
-"""
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from data_preparation import number_classes, data_shape
@@ -12,7 +9,6 @@ def create_model(dataset_name, input_shape):
     Args:
         dataset_name: 'mnist', 'cifar10' or 'cifar100'
         input_shape: (28, 28, 1)
-        num_classes: 10
 
     Returns:
         model: Keras model
@@ -20,45 +16,36 @@ def create_model(dataset_name, input_shape):
     num_classes = number_classes()
 
     if dataset_name == 'mnist':
-        return create_lenet5(input_shape, num_classes)
+        return create_modernCNN(input_shape, num_classes)
     elif dataset_name == 'cifar10' or dataset_name == 'cifar100':
         return create_resnet18(input_shape, num_classes)
     else:
         raise ValueError(f" Non supported Dataset: {dataset_name}")
 
 
-def create_lenet5(input_shape, num_classes):
+def create_modernCNN(input_shape, num_classes):
     """
-    LeNet-5 architecture for MNIST
-    Original Architecture :
-    - Conv 6 filters 5x5
-    - AvgPool 2x2
-    - Conv 16 filters 5x5
-    - AvgPool 2x2
+    Modern CNN architecture for MNIST
+    Architecture Overview:
+    - Conv 32 filters 5x5 (ReLU)
+    - MaxPool 2x2
+    - Conv 64 filters 5x5 (ReLU)
+    - MaxPool 2x2
     - Flatten
-    - Dense 120
-    - Dense 84
-    - Dense num_classes
+    - Dense 512 (ReLU)
+    - Dropout 0.3
+    - Dense num_classes (Softmax)
     """
     model = tf.keras.Sequential([
-        layers.Input(shape=input_shape),
-        # C1: Convolutional Layer
-        layers.Conv2D(6, kernel_size=(5, 5), strides=1, activation='tanh', padding='same', name='C1'),
-        # S2: Subsampling Layer (Average Pooling)
-        layers.AveragePooling2D(pool_size=(2, 2), strides=2, name='S2'),
-        # C3: Convolutional Layer
-        layers.Conv2D(16, kernel_size=(5, 5), strides=1, activation='tanh', padding='valid', name='C3'),
-        # S4: Subsampling Layer
-        layers.AveragePooling2D(pool_size=(2, 2), strides=2, name='S4'),
-        # Flatten
+        layers.Conv2D(32, (5, 5), activation='relu', input_shape=input_shape),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (5, 5), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
         layers.Flatten(),
-        # C5: Fully Connected Layer
-        layers.Dense(120, activation='tanh', name='C5'),
-        # F6: Fully Connected Layer
-        layers.Dense(84, activation='tanh', name='F6'),
-        # Output Layer
-        layers.Dense(num_classes, activation='softmax', name='output')
-    ], name='LeNet5')
+        layers.Dense(512, activation='relu'),
+        layers.Dropout(0.3),
+        layers.Dense(num_classes, activation='softmax')
+    ], name='Modern_CNN')
     return model
 
 
@@ -137,7 +124,7 @@ def create_resnet18(input_shape, num_classes):
     return model
 
 
-def copy_model(model, learning_rate=0.001):
+def copy_model(model, dataset_name):
 
     with tf.device('/GPU:0' if tf.config.list_physical_devices('GPU') else '/CPU:0'):
         # Créer un nouveau modèle avec la même architecture
@@ -145,7 +132,7 @@ def copy_model(model, learning_rate=0.001):
 
         # Compiler le modèle
         model_copy.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+            optimizer=get_optimizer(dataset_name),
             loss='categorical_crossentropy',
             metrics=['accuracy']
         )
@@ -157,7 +144,7 @@ def copy_model(model, learning_rate=0.001):
         return model_copy
 
 
-def initialize_global_model(dataset_name, learning_rate=0.001):
+def initialize_global_model(dataset_name):
 
     input_shape = data_shape(dataset_name)
 
@@ -166,7 +153,7 @@ def initialize_global_model(dataset_name, learning_rate=0.001):
 
     # Compile
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+        optimizer=get_optimizer(dataset_name),
         loss='sparse_categorical_crossentropy',
         metrics=['accuracy']
     )
@@ -174,7 +161,7 @@ def initialize_global_model(dataset_name, learning_rate=0.001):
     return model
 
 
-def initialize_edge_models(edge_servers, dataset_name, global_model, learning_rate=0.001):
+def initialize_edge_models(edge_servers, dataset_name, global_model):
 
     input_shape = data_shape(dataset_name)
 
@@ -182,8 +169,16 @@ def initialize_edge_models(edge_servers, dataset_name, global_model, learning_ra
         if edge.local_model is None:
             edge.local_model = create_model(dataset_name, input_shape)
             edge.local_model.compile(
-                optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+                optimizer=get_optimizer(dataset_name),
                 loss='sparse_categorical_crossentropy',
                 metrics=['accuracy']
             )
         edge.local_model.set_weights(global_model.get_weights())
+
+
+def get_optimizer(dataset_name: str):
+
+    if dataset_name in ['mnist']:
+        return tf.keras.optimizers.Adam(learning_rate=1e-3)
+    elif dataset_name in ['cifar10', 'cifar100']:
+            return tf.keras.optimizers.SGD(learning_rate=0.1, momentum=0.9)

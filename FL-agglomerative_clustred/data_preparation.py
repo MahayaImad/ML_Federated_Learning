@@ -1,9 +1,5 @@
-"""
-Préparation des données pour les expériences d'agrégation
-"""
 import numpy as np
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
 
 
 
@@ -89,7 +85,7 @@ def prepare_federated_cifar100(iid=True, alpha=0.5, num_clients=10):
     if iid:
         fed_data = _create_iid_split(x_train, y_train, num_clients)
     else:
-        fed_data = _create_non_iid_split(x_train, y_train, alpha, num_clients, num_classes=100)
+        fed_data = _create_non_iid_split(x_train, y_train, alpha, num_clients)
 
     # Informations sur les clients
     client_info = []
@@ -101,7 +97,7 @@ def prepare_federated_cifar100(iid=True, alpha=0.5, num_clients=10):
             'class_distribution': class_distribution
         })
 
-    _print_data_info(client_info, dataset="CIFAR-100", num_classes=100)
+    _print_data_info(client_info, dataset="CIFAR-100")
 
     return fed_data, test_data, client_info
 

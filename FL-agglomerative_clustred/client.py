@@ -9,12 +9,12 @@ from models import copy_model
 class FederatedClient:
     """Client for federated learning"""
 
-    def __init__(self, client_id, data, aggregator, batch_size=64, learning_rate=0.001):
+    def __init__(self, client_id, data, aggregator, batch_size=64, dataset_name="mnist"):
         self.client_id = client_id
         self.x_train, self.y_train = data
         self.aggregator = aggregator
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
+        self.dataset_name = dataset_name
         self.local_model = None
         self.global_model_ref = None
 
@@ -25,7 +25,7 @@ class FederatedClient:
     def update_model(self, global_model):
         """Updates local model with global model weights"""
         if self.local_model is None:
-            self.local_model = copy_model(global_model, self.learning_rate)
+            self.local_model = copy_model(global_model, self.dataset_name)
         else:
             self.local_model.set_weights(global_model.get_weights())
         self.global_model_ref = global_model

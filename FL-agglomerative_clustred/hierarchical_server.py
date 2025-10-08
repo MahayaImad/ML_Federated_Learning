@@ -1,5 +1,5 @@
 
-from aggregations.fedavg import FedAvgAggregator
+from aggregator import FedAvgAggregator
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from utils import jensen_shannon_distance, select_clients_by_samples

@@ -14,7 +14,7 @@ from data_preparation import prepare_federated_cifar10,prepare_federated_cifar10
 from models import create_model, initialize_global_model, initialize_edge_models
 from hierarchical_server import setup_vanilla_fl, setup_standard_hierarchy, setup_dropin_hierarchy, setup_agglomerative_hierarchy
 from client import FederatedClient
-from aggregations.fedavg import FedAvgAggregator
+from aggregator import FedAvgAggregator
 from utils import setup_gpu, save_results, save_client_stats_csv
 from config import SAVE_CLIENTS_STATS, VERBOSE, LOCAL_EPOCHS, COMMUNICATION_ROUNDS, BATCH_SIZE, LEARNING_RATE, CLIENTS, EDGE_SERVERS
 
@@ -78,9 +78,6 @@ Types d'entraînement disponibles:
     parser.add_argument('--batch-size', type=int, default=BATCH_SIZE,
                         help='Taille des lots (défaut: 32)')
 
-    parser.add_argument('--lr', type=float, default=LEARNING_RATE,
-                        help='Taux d\'apprentissage (défaut: 0.001)')
-
     parser.add_argument('--iid', action='store_true',
                         help='Distribution IID des données (défaut: non-IID)')
 
@@ -129,7 +126,7 @@ def train_vanilla_fl(clients, test_data, args):
     """Entraînement FL vanilla (FedAvg classique)"""
     print(" Train of Vanilla FL (FedAvg)...")
 
-    global_model =  initialize_global_model(args.dataset, args.lr)
+    global_model =  initialize_global_model(args.dataset)
     aggregator = FedAvgAggregator()
 
     results = {
@@ -186,8 +183,8 @@ def train_hierarchical(clients, test_data, edge_servers, hierarchical_server, ar
 
     print(f" Train of FL {args.hierarchy_type}...")
 
-    global_model = initialize_global_model(args.dataset, args.lr)
-    initialize_edge_models(edge_servers, args.dataset, global_model, args.lr)
+    global_model = initialize_global_model(args.dataset)
+    initialize_edge_models(edge_servers, args.dataset, global_model)
 
     accuracy_history = []
     communication_costs = []
@@ -326,7 +323,7 @@ def compare_all_methods(fed_data, test_data, args):
 def _train_single_method(fed_data, test_data, args):
 
     # Create clients
-    clients = [FederatedClient(i, data, FedAvgAggregator())
+    clients = [FederatedClient(i, data, FedAvgAggregator(), args.dataset_name)
                for i, data in enumerate(fed_data)]
 
     # Train based on type
@@ -335,8 +332,7 @@ def _train_single_method(fed_data, test_data, args):
     else:
         # All hierarchical variants use same training logic
         edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
-        return train_hierarchical(clients, test_data, edge_servers,
-                                  hierarchical_server, args)
+        return train_hierarchical(clients, test_data, edge_servers, hierarchical_server, args)
 
 
 def print_final_results(results, hierarchy_type):

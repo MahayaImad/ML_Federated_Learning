@@ -1,6 +1,3 @@
-"""
-Utilitaires pour comparaisons FL vs autres méthodes
-"""
 import os
 import datetime
 import csv
@@ -45,6 +42,7 @@ def save_results(results, args):
 
     print(f"\nResults saved to: {log_path}")
     print(f"\nVisualization saved to: {plot_path}")
+
 
 def _save_detailed_results(results, args, log_path):
     """Sauvegarde les résultats détaillés au format texte"""
@@ -96,6 +94,7 @@ def _save_detailed_results(results, args, log_path):
         print(f"Erreur sauvegarde résultats: {e}")
         import traceback
         traceback.print_exc()
+
 
 def _plot_comparison_results(results, args, plot_path):
     """Crée les visualisations de comparaison"""
@@ -158,14 +157,6 @@ def _plot_comparison_results(results, args, plot_path):
                             verticalalignment='center', fontfamily='monospace')
             axes[1, 1].set_title('Summary')
 
-        else:
-            # Structure FL-Comparison (multiples méthodes) - garde l'ancien code
-            methods = list(results.keys())
-            accuracies = [results[method].get('final_accuracy', 0.0) for method in methods]
-            times = [results[method].get('training_time', 0.0) for method in methods]
-            comm_costs = [results[method].get('communication_cost', 0) for method in methods]
-            # ... reste du code existant
-
         plt.suptitle(f'FL Hierarchical Results - {getattr(args, "dataset", "Unknown")}', fontsize=16)
         plt.tight_layout()
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
@@ -175,6 +166,8 @@ def _plot_comparison_results(results, args, plot_path):
         print(f"Erreur création graphique: {e}")
         import traceback
         traceback.print_exc()
+
+
 
 def jensen_shannon_distance(p, q):
     """Calcul de la distance de Jensen-Shannon entre deux distributions"""

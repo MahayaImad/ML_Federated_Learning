@@ -1,94 +1,112 @@
-"""
-Classe de base pour tous les agrégateurs
-"""
+import time
 import numpy as np
-from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
 
-class BaseAggregator(ABC):
-    """Classe abstraite pour les agrégateurs fédérés"""
 
-    def __init__(self, name: str = "BaseAggregator"):
-        self.name = name
+class FedAvgAggregator:
+    """Standard FedAvg aggregator"""
+
+    def __init__(self):
+        self.name = "FedAvg"
         self.round_number = 0
         self.history = {
             'communication_costs': [],
             'aggregation_times': []
         }
 
-    @abstractmethod
     def aggregate(self, client_updates, client_weights, global_model):
         """
-        Agrège les mises à jour des clients
+        Aggregate client updates using FedAvg
 
         Args:
-            client_updates: Liste des mises à jour des clients
-            client_weights: Poids relatifs des clients (taille des données)
-            global_model: Modèle global actuel
+            client_updates: List of client weight deltas
+            client_weights: Data sizes for weighted averaging
+            global_model: Current global model
 
         Returns:
-            new_global_weights: Nouveaux poids du modèle global
+            new_global_weights: Updated global model weights
         """
-        pass
+        start_time = time.time()
 
-    @abstractmethod
+        # Weighted average of updates
+        aggregated_update = weighted_average(client_updates, client_weights)
+
+        # Apply update to global model
+        global_weights = global_model.get_weights()
+        new_global_weights = [
+            global_w + update for global_w, update in zip(global_weights, aggregated_update)
+        ]
+
+        # Record metrics
+        comm_cost = self.get_communication_cost(client_updates)
+        agg_time = time.time() - start_time
+
+        self.history['communication_costs'].append(comm_cost)
+        self.history['aggregation_times'].append(agg_time)
+
+        return new_global_weights
+
     def prepare_client_update(self, client_id, local_model, global_model):
         """
-        Prépare la mise à jour d'un client
+        Prepare client update (weight delta)
 
         Args:
-            client_id: ID du client
-            local_model: Modèle local entraîné
-            global_model: Modèle global
+            client_id: Client ID
+            local_model: Trained local model
+            global_model: Global model
 
         Returns:
-            client_update: Mise à jour à envoyer au serveur
+            client_update: Weight delta (local - global)
         """
-        pass
+        local_weights = local_model.get_weights()
+        global_weights = global_model.get_weights()
+
+        # Calculate weight delta
+        client_update = subtract_weights(local_weights, global_weights)
+
+        return client_update
 
     def update_round(self):
-        """Met à jour le numéro de tour"""
+        """Update round number"""
         self.round_number += 1
 
     def reset(self):
-        """Remet à zéro l'agrégateur"""
+        """Reset aggregator state"""
         self.round_number = 0
         self.history = {
             'communication_costs': [],
             'aggregation_times': []
         }
 
-
     def get_communication_cost(self, client_updates):
-        """Calcule le coût de communication avec gestion robuste des formats"""
+        """Calculate communication cost with robust format handling"""
         total_params = 0
 
         try:
             for update in client_updates:
                 if isinstance(update, dict):
-                    # Format SCAFFOLD ou autres avec dictionnaire
+                    # Dictionary format (e.g., SCAFFOLD)
                     for key, value in update.items():
                         if isinstance(value, list):
                             for item in value:
                                 if hasattr(item, 'shape') and hasattr(item, 'size'):
                                     total_params += item.size
                 elif isinstance(update, list):
-                    # Format standard (liste de numpy arrays)
+                    # Standard format (list of numpy arrays)
                     for layer_update in update:
                         if hasattr(layer_update, 'shape') and hasattr(layer_update, 'size'):
                             total_params += layer_update.size
                 elif hasattr(update, 'shape') and hasattr(update, 'size'):
-                    # Cas d'un seul array
+                    # Single array
                     total_params += update.size
 
         except Exception as e:
-            print(f"Erreur calcul communication cost: {e}")
+            print(f"Error calculating communication cost: {e}")
             return 0
 
         return total_params
 
     def get_stats(self):
-        """Retourne les statistiques de l'agrégateur"""
+        """Return aggregator statistics"""
         return {
             'name': self.name,
             'rounds_completed': self.round_number,
@@ -98,16 +116,18 @@ class BaseAggregator(ABC):
         }
 
 
+# Helper functions
+
 def weighted_average(updates, weights):
     """
-    Calcule la moyenne pondérée des mises à jour
+    Calculate weighted average of updates
 
     Args:
-        updates: Liste des mises à jour
-        weights: Poids pour chaque mise à jour
+        updates: List of updates
+        weights: Weight for each update
 
     Returns:
-        averaged_update: Mise à jour moyennée
+        averaged_update: Averaged update
     """
     if not updates:
         return None
@@ -116,7 +136,7 @@ def weighted_average(updates, weights):
     weights = np.array(weights)
     weights = weights / weights.sum()
 
-    # Calculer la moyenne pondérée
+    # Calculate weighted average
     averaged_update = []
     for layer_idx in range(len(updates[0])):
         layer_updates = [update[layer_idx] for update in updates]
@@ -129,16 +149,17 @@ def weighted_average(updates, weights):
 
     return averaged_update
 
+
 def subtract_weights(weights1, weights2):
-    """Soustrait weights2 de weights1"""
+    """Subtract weights2 from weights1"""
     return [w1 - w2 for w1, w2 in zip(weights1, weights2)]
 
 
 def add_weights(weights1, weights2):
-    """Additionne weights1 et weights2"""
+    """Add weights1 and weights2"""
     return [w1 + w2 for w1, w2 in zip(weights1, weights2)]
 
 
 def scale_weights(weights, factor):
-    """Multiplie les poids par un facteur"""
+    """Multiply weights by a factor"""
     return [w * factor for w in weights]

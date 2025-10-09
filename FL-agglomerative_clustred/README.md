@@ -18,13 +18,22 @@ Compares four federated learning architectures: **Vanilla FL**, **Hierarchical**
 # Install dependencies
 pip install tensorflow numpy matplotlib scikit-learn scipy
 
+# Using Nvidia Containers (Docker must be installed)
+Windows: docker run --rm -it --gpus all -v ${PWD}:/app nvcr.io/nvidia/tensorflow:24.07-tf2-py3 bash
+Linux: docker run --rm -it --gpus all -v ${pwd}:/app nvcr.io/nvidia/tensorflow:24.07-tf2-py3 bash
+Then : /app 
+
 # Vanilla FL baseline
 python main.py --hierarchy-type vanilla --dataset mnist --clients 20 --rounds 20
 
 # Hierarchical FL
 python main.py --hierarchy-type hierarchical --dataset cifar10 \
     --clients 20 --edge-servers 5 --rounds 20
-
+    
+# Drop-in FL
+python main.py --hierarchy-type drop-in --dataset cifar10 \
+    --clients 30 --edge-servers 6 --rounds 10
+    
 # Agglomerative clustering (data-driven)
 python main.py --hierarchy-type agglomerative --dataset cifar100 \
     --clients 30 --js-threshold 0.5 --selection-ratio 0.3 --rounds 25

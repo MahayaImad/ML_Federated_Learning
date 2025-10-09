@@ -16,7 +16,7 @@ from hierarchical_server import setup_vanilla_fl, setup_standard_hierarchy, setu
 from client import FederatedClient
 from aggregator import FedAvgAggregator
 from utils import setup_gpu, save_results, save_client_stats_csv
-from config import SAVE_CLIENTS_STATS, VERBOSE, LOCAL_EPOCHS, COMMUNICATION_ROUNDS, BATCH_SIZE, LEARNING_RATE, CLIENTS, EDGE_SERVERS
+from config import SAVE_CLIENTS_STATS, VERBOSE, LOCAL_EPOCHS, COMMUNICATION_ROUNDS, BATCH_SIZE, CLIENTS, EDGE_SERVERS
 
 
 def parse_arguments():
@@ -92,7 +92,7 @@ Types d'entraînement disponibles:
 
 def setup_hierarchy(clients_data, args):
 
-    num_classes = number_classes()
+    num_classes = number_classes(args.dataset)
     hierarchy_type = args.hierarchy_type
 
     if hierarchy_type == 'vanilla':
@@ -312,10 +312,13 @@ def compare_all_methods(fed_data, test_data, args):
 
         # Run training
         results = _train_single_method(fed_data, test_data, args)
+        results['method'] = hierarchy_type
         all_results[method_name] = results
 
         # Save individual results
-        save_results({method_name: results}, args)
+        save_results(results, args)
+
+    args.hierarchy_type = "compare"
 
     return all_results
 
@@ -323,7 +326,7 @@ def compare_all_methods(fed_data, test_data, args):
 def _train_single_method(fed_data, test_data, args):
 
     # Create clients
-    clients = [FederatedClient(i, data, FedAvgAggregator(), args.dataset_name)
+    clients = [FederatedClient(i, data, FedAvgAggregator(), args.batch_size, args.dataset)
                for i, data in enumerate(fed_data)]
 
     # Train based on type
@@ -415,6 +418,7 @@ def main():
         results['method'] = args.hierarchy_type
 
     # Sauvegarde et visualisation
+    print("dddddddddd")
     save_results(results, args)
     print_final_results(results, args.hierarchy_type)
 

@@ -174,48 +174,49 @@ def _create_iid_split(x_train, y_train, num_clients):
 
 
 def _create_non_iid_split(x_train, y_train, alpha, num_clients):
-    """Crée une division non-IID avec distribution Dirichlet"""
-    fed_data = []
+    """Creates non-IID split using Dirichlet distribution """
+
+    num_classes = y_train.shape[1]
     total_samples = len(x_train)
-    size_per_client = total_samples // num_clients
+    samples_per_client = total_samples // num_clients
 
-    # Group samples by class
-    class_indices = {}
-    for class_id in range(10):
-        class_indices[class_id] = np.where(y_train.argmax(axis=1) == class_id)[0]
+    # Group indices by class (as lists for removal)
+    class_indices = {
+        c: np.where(y_train.argmax(axis=1) == c)[0].tolist()
+        for c in range(num_classes)
+    }
 
-    # Distribution Dirichlet pour chaque client
+    fed_data = []
     for client_id in range(num_clients):
-        # Générer les proportions de classes avec Dirichlet
-        proportions = np.random.dirichlet([alpha] * 10)
+        # Generate class proportions via Dirichlet
+        proportions = np.random.dirichlet([alpha] * num_classes)
+        samples_per_class = (proportions * samples_per_client).astype(int)
+        samples_per_class[np.argmax(proportions)] += samples_per_client - samples_per_class.sum()
 
-        # Calculer le nombre d'échantillons par classe
-        samples_per_class = (proportions * size_per_client).astype(int)
-
-        # Ajuster pour avoir exactement size_per_client échantillons
-        diff = size_per_client - samples_per_class.sum()
-        if diff > 0:
-            samples_per_class[np.argmax(proportions)] += diff
-        elif diff < 0:
-            samples_per_class[np.argmax(samples_per_class)] += diff
-
-        # Sélectionner les échantillons
+        # Collect samples from each class
         client_indices = []
         for class_id, num_samples in enumerate(samples_per_class):
-            if num_samples > 0:
-                available_indices = class_indices[class_id]
-                selected = np.random.choice(
-                    available_indices,
-                    min(num_samples, len(available_indices)),
-                    replace=False
-                )
-                client_indices.extend(selected)
+            available = len(class_indices[class_id])
+            if num_samples > 0 and available > 0:
+                take = min(num_samples, available)
+                positions = np.random.choice(available, take, replace=False)
+                # Remove from pool in reverse order
+                for pos in sorted(positions, reverse=True):
+                    client_indices.append(class_indices[class_id].pop(pos))
 
-        # Créer les données du client
-        x_client = x_train[client_indices]
-        y_client = y_train[client_indices]
+        # Fill shortage from remaining samples if needed
+        if len(client_indices) < samples_per_client:
+            remaining = [idx for indices in class_indices.values() for idx in indices]
+            shortage = samples_per_client - len(client_indices)
+            if remaining and shortage > 0:
+                extra = np.random.choice(len(remaining), min(shortage, len(remaining)), replace=False)
+                client_indices.extend([remaining[i] for i in extra])
+                # Remove used indices
+                extra_set = set(client_indices[-len(extra):])
+                for c in range(num_classes):
+                    class_indices[c] = [i for i in class_indices[c] if i not in extra_set]
 
-        fed_data.append((x_client, y_client))
+        fed_data.append((x_train[client_indices], y_train[client_indices]))
 
     return fed_data
 

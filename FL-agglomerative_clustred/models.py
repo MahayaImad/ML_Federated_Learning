@@ -13,7 +13,7 @@ def create_model(dataset_name, input_shape):
     Returns:
         model: Keras model
     """
-    num_classes = number_classes()
+    num_classes = number_classes(dataset_name)
 
     if dataset_name == 'mnist':
         return create_modernCNN(input_shape, num_classes)

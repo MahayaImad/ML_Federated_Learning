@@ -80,18 +80,13 @@ def save_single_method_results(server, args, model):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{args.method}_{timestamp}"
 
-    # Sauvegarde avec la méthode du serveur
-    json_file = os.path.join(RESULTS_DIR, f"{filename}.json")
-    server.save_results(json_file)
-
     # Sauvegarde du modèle
     model_file = os.path.join(MODELS_DIR, f"{filename}.keras")
     model.save(model_file)
 
     print(f"Modèle sauvegardé: {model_file}")
-    print(f"Métriques sauvegardées: {json_file}")
 
-    return json_file, model_file
+    return model_file
 
 
 def plot_comparison_results(results, args):

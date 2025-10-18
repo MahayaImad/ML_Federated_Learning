@@ -1,4 +1,5 @@
 
+from aggregator import FedAvgAggregator
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from utils import jensen_shannon_distance, select_clients_by_samples
@@ -8,6 +9,7 @@ class EdgeServer:
     def __init__(self, edge_id, client_ids):
         self.edge_id = edge_id
         self.client_ids = client_ids
+        self.aggregator = FedAvgAggregator()
         self.local_model = None
 
     def set_global_model(self, weights):
@@ -18,12 +20,42 @@ class EdgeServer:
         else:
             self.local_model.set_weights(weights)
 
+    def aggregate_clients(self, client_updates):
+        """Agrège les mises à jour des clients locaux"""
+        edge_updates = []
+        edge_sizes = []
+
+        for client_id in self.client_ids:
+            if client_id in client_updates:
+                edge_updates.append(client_updates[client_id]['weights'])
+                edge_sizes.append(client_updates[client_id]['data_size'])
+
+        if edge_updates:
+            self.local_model = self.aggregator.aggregate(edge_updates, edge_sizes)
+
+        return self.local_model
+
 
 class HierarchicalServer:
     def __init__(self, edge_servers):
         self.edge_servers = edge_servers
+        self.global_aggregator = FedAvgAggregator()
         self.global_model = None
 
+    def aggregate_edges(self):
+        """Agrège les modèles des edge servers"""
+        edge_models = []
+        edge_sizes = []
+
+        for edge_server in self.edge_servers:
+            if edge_server.local_model is not None:
+                edge_models.append(edge_server.local_model)
+                edge_sizes.append(len(edge_server.client_ids))
+
+        if edge_models:
+            self.global_model = self.global_aggregator.aggregate(edge_models, edge_sizes)
+
+        return self.global_model
 
 
 def setup_vanilla_fl():
@@ -112,27 +144,6 @@ def setup_agglomerative_hierarchy(clients_data, js_threshold,
     return edge_servers, HierarchicalServer(edge_servers)
 
 
-def setup_cyclic_agglomerative_hierarchy(clients_data, js_threshold,
-                                         selection_ratio, num_classes, verbose=False):
-    """
-    Cyclic-Agglomerative clustering
-    - Initial clustering using Jensen-Shannon divergence (same as agglomerative)
-    - Cyclic aggregation between edge servers at each round
-
-    This setup only creates the initial clustering structure.
-    The cyclic aggregation logic is handled in the training loop.
-    """
-    # Use the same clustering as agglomerative
-    edge_servers, hierarchical_server = setup_agglomerative_hierarchy(
-        clients_data, js_threshold, selection_ratio, num_classes, verbose
-    )
-
-    if verbose:
-        print(f"\n  Cyclic-Agglomerative: {len(edge_servers)} edge servers with cyclic aggregation enabled")
-
-    return edge_servers, hierarchical_server
-
-
 def setup_dropin_hierarchy(clients_data, num_edge_servers, verbose=False):
     """
     Drop-in hierarchical FL - clients can appear in multiple edge servers
@@ -174,32 +185,6 @@ def setup_dropin_hierarchy(clients_data, num_edge_servers, verbose=False):
 
     return edge_servers, HierarchicalServer(edge_servers)
 
-
-def get_cyclic_partner(edge_id, round_num, num_edges):
-    """
-    Calculate the cyclic partner for an edge server at a given round
-
-    Args:
-        edge_id: Current edge server ID (0-indexed)
-        round_num: Current round number (0-indexed)
-        num_edges: Total number of edge servers
-
-    Returns:
-        partner_id: ID of the partner edge server
-
-    Examples (with 4 edges):
-        Round 0: 0->1, 1->2, 2->3, 3->0
-        Round 1: 0->2, 1->3, 2->0, 3->1
-        Round 2: 0->3, 1->0, 2->1, 3->2
-    """
-    if num_edges <= 1:
-        return edge_id
-
-    # Cyclic offset increases with each round
-    offset = (round_num % (num_edges - 1)) + 1
-    partner_id = (edge_id + offset) % num_edges
-
-    return partner_id
 
 def _print_js_statistics(js_matrix):
     """Helper to print JS distance statistics"""

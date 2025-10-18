@@ -1,0 +1,30 @@
+Hierarchical Aggregation Results: CIFAR100
+Method: agglomerative
+Configuration: 20 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 10 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-11T12:24:56.268221
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.327900
+Total Training Time: 799.97s
+Average Time per Round: 80.00s
+Total Communication Cost: 540
+Convergence Rounds: 10
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.010000, Time=178.04s, Comm=54
+Round  2: Accuracy=0.011200, Time=69.81s, Comm=54
+Round  3: Accuracy=0.071100, Time=69.97s, Comm=54
+Round  4: Accuracy=0.158100, Time=69.82s, Comm=54
+Round  5: Accuracy=0.204100, Time=68.60s, Comm=54
+Round  6: Accuracy=0.247600, Time=68.67s, Comm=54
+Round  7: Accuracy=0.279700, Time=68.83s, Comm=54
+Round  8: Accuracy=0.307700, Time=68.75s, Comm=54
+Round  9: Accuracy=0.320600, Time=68.59s, Comm=54
+Round 10: Accuracy=0.327900, Time=68.88s, Comm=54

@@ -8,15 +8,15 @@ import tensorflow as tf
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
-import time
+
 
 from data_preparation import prepare_federated_cifar10,prepare_federated_cifar100, prepare_federated_mnist, number_classes
-from models import create_model, initialize_global_model, initialize_edge_models
-from hierarchical_server import setup_vanilla_fl, setup_standard_hierarchy, setup_dropin_hierarchy, setup_agglomerative_hierarchy
+from hierarchical_server import (setup_vanilla_fl, setup_standard_hierarchy, setup_dropin_hierarchy,
+                                 setup_agglomerative_hierarchy, setup_cyclic_agglomerative_hierarchy)
 from client import FederatedClient
-from aggregator import FedAvgAggregator
-from utils import setup_gpu, save_results, save_client_stats_csv
-from config import SAVE_CLIENTS_STATS, VERBOSE, LOCAL_EPOCHS, COMMUNICATION_ROUNDS, BATCH_SIZE, CLIENTS, EDGE_SERVERS
+from train import train_vanilla_fl, train_hierarchical, train_cyclic_agglomerative
+from utils import setup_gpu, save_results
+from config import VERBOSE, LOCAL_EPOCHS, COMMUNICATION_ROUNDS, BATCH_SIZE, CLIENTS, EDGE_SERVERS
 
 
 def parse_arguments():
@@ -34,13 +34,6 @@ Types d'entraînement disponibles:
      python main.py --hierarchy-type hierarchical --dataset cifar10 \
     --clients 20 --edge-servers 5 --rounds 20
 
-  🔹 Drop-in Hierarchical FL:
-     python main.py --hierarchy-type drop-in --clients 20 --edge-servers 5
-     
-  🔹 Agglomerative clustering (data-driven)
-     python main.py --hierarchy-type agglomerative --dataset cifar100 \
-     --clients 30 --js-threshold 0.5 --selection-ratio 0.3 --rounds 25
-
   🔹 Comparaison complète:
      python main.py --hierarchy-type compare --dataset mnist \
     --clients 20 --edge-servers 5 --rounds 20 
@@ -49,7 +42,7 @@ Types d'entraînement disponibles:
 
     # Arguments obligatoires
     parser.add_argument('--hierarchy-type', type=str, required=True,
-                        choices=['vanilla', 'hierarchical', 'agglomerative', 'drop-in', 'compare'],
+                        choices=['vanilla', 'hierarchical', 'agglomerative', 'cyclic-agglomerative', 'drop-in', 'compare'],
                         help='Type d\'entraînement hiérarchique')
 
     parser.add_argument('--dataset', type=str, required=True,
@@ -112,6 +105,15 @@ def setup_hierarchy(clients_data, args):
             VERBOSE
         )
 
+    elif hierarchy_type == 'cyclic-agglomerative':
+        return setup_cyclic_agglomerative_hierarchy(
+            clients_data,
+            args.js_threshold,
+            args.client_selection_ratio,
+            num_classes,
+            VERBOSE
+        )
+
     elif hierarchy_type == 'drop-in':
         return setup_dropin_hierarchy(
             clients_data, args.edge_servers, VERBOSE
@@ -120,170 +122,6 @@ def setup_hierarchy(clients_data, args):
     else:
         print(f"Error: Unknown hierarchy type '{hierarchy_type}'")
         return None, None
-
-
-def train_vanilla_fl(clients, test_data, args):
-    """Entraînement FL vanilla (FedAvg classique)"""
-    print(" Train of Vanilla FL (FedAvg)...")
-
-    global_model =  initialize_global_model(args.dataset)
-    aggregator = FedAvgAggregator()
-
-    results = {
-        'accuracy_history': [],
-        'communication_costs': [],
-        'round_times': []
-    }
-
-    for round_num in range(args.rounds):
-        start_time = time.time()
-
-        if VERBOSE:
-            print(f"  Round {round_num + 1}/{args.rounds}")
-
-        # Local training
-        client_updates = []
-        client_sizes = []
-
-        for client in clients:
-            client.update_model(global_model)
-            client.train_local(args.local_epochs)
-            weights = client.local_model.get_weights()
-            client_updates.append(weights)
-            client_sizes.append(len(client.x_train))
-
-        # Aggregation FedAvg
-        global_weights = aggregator.aggregate(client_updates, client_sizes, global_model)
-        global_model.set_weights(global_weights)
-
-        # Evaluation
-        x_test, y_test = test_data
-        y_test = np.argmax(y_test, axis=1)
-        _, accuracy = global_model.evaluate(x_test, y_test, verbose=0)
-
-        # Métriques
-        comm_cost = len(clients) * 2  # Upload + download pour chaque client
-        round_time = time.time() - start_time
-
-        results['accuracy_history'].append(accuracy)
-        results['communication_costs'].append(comm_cost)
-        results['round_times'].append(round_time)
-
-        if VERBOSE:
-            print(f"    Accuracy: {accuracy:.4f}, Comm Cost: {comm_cost}, Time: {round_time:.2f}s")
-
-    # Save client statistics to CSV
-    if SAVE_CLIENTS_STATS:
-        save_client_stats_csv(clients, args)
-
-    return results
-
-
-def train_hierarchical(clients, test_data, edge_servers, hierarchical_server, args):
-
-    print(f" Train of FL {args.hierarchy_type}...")
-
-    global_model = initialize_global_model(args.dataset)
-    initialize_edge_models(edge_servers, args.dataset, global_model)
-
-    accuracy_history = []
-    communication_costs = []
-    round_times = []
-
-    for round_num in range(args.rounds):
-        print(f"Round {round_num + 1}/{args.rounds}")
-        round_start_time = time.time()
-        communication_cost = 0
-
-        # ÉTAPE 1: Diffuser le modèle global vers les edge servers
-        for edge_server in edge_servers:
-            edge_server.set_global_model(global_model.get_weights())
-            communication_cost += 1  # Global -> Edge
-
-        # ÉTAPE 2: Chaque edge server entraîne ses clients et agrège localement
-        edge_updates = []
-        edge_weights = []
-
-        for edge_server in edge_servers:
-            # Clients de cet edge server
-            edge_clients = [client for client in clients if client.client_id in edge_server.client_ids]
-
-            if not edge_clients:
-                continue
-
-            # Entraînement local des clients de cet edge server
-            client_updates = []
-            client_data_sizes = []
-
-            for client in edge_clients:
-                # Mettre à jour avec le modèle de l'edge server
-                client.update_model(edge_server.local_model)
-
-                # Entraînement local
-                client.train_local(args.local_epochs)
-                communication_cost += 2  # Edge -> Client -> Edge
-
-                client_updates.append(client.local_model.get_weights())
-                client_data_sizes.append(len(client.x_train))
-
-            # ÉTAPE 3: Agrégation au niveau de l'edge server
-            if client_updates:
-                edge_aggregated = fedavg_aggregate(client_updates, client_data_sizes)
-                edge_server.local_model.set_weights(edge_aggregated)
-
-                edge_updates.append(edge_aggregated)
-                edge_weights.append(sum(client_data_sizes))  # Poids = total des données
-
-        # ÉTAPE 4: Agrégation finale au serveur global
-        if edge_updates:
-            global_aggregated = fedavg_aggregate(edge_updates, edge_weights)
-            global_model.set_weights(global_aggregated)
-
-            # Communication Edge -> Global
-            communication_cost += len(edge_servers)
-
-        # ÉTAPE 5: Évaluation
-        x_test, y_test = test_data
-        y_test = np.argmax(y_test, axis=1)
-        test_loss, test_acc = global_model.evaluate(x_test, y_test, verbose=0)
-
-        round_time = time.time() - round_start_time
-
-        accuracy_history.append(test_acc)
-        communication_costs.append(communication_cost)
-        round_times.append(round_time)
-
-        print(f"  Accuracy: {test_acc:.4f}, Time: {round_time:.2f}s, Comm: {communication_cost}")
-
-    # Save client statistics to CSV
-    if SAVE_CLIENTS_STATS:
-        save_client_stats_csv(clients, args)
-
-    return {
-        'method': 'hierarchical',
-        'accuracy_history': accuracy_history,
-        'communication_costs': communication_costs,
-        'round_times': round_times
-    }
-
-
-def fedavg_aggregate(model_weights_list, data_sizes):
-    """Agrégation FedAvg pondérée par la taille des données"""
-    if not model_weights_list:
-        return None
-
-    total_size = sum(data_sizes)
-    weights_avg = []
-
-    # Weight each model by its data size
-    for layer_idx in range(len(model_weights_list[0])):
-        weighted_layer = sum(
-            (data_sizes[i] / total_size) * model_weights_list[i][layer_idx]
-            for i in range(len(model_weights_list))
-        )
-        weights_avg.append(weighted_layer)
-
-    return weights_avg
 
 
 def compare_all_methods(fed_data, test_data, args):
@@ -299,7 +137,8 @@ def compare_all_methods(fed_data, test_data, args):
         ('vanilla', 'vanilla'),
         ('hierarchical', 'hierarchical'),
         ('drop_in', 'drop-in'),
-        ('agglomerative', 'agglomerative')
+        ('agglomerative', 'agglomerative'),
+        ('cyclic_agglomerative', 'cyclic-agglomerative')
     ]
 
     for method_name, hierarchy_type in methods:
@@ -326,12 +165,16 @@ def compare_all_methods(fed_data, test_data, args):
 def _train_single_method(fed_data, test_data, args):
 
     # Create clients
-    clients = [FederatedClient(i, data, FedAvgAggregator(), args.batch_size, args.dataset)
+    clients = [FederatedClient(i, data, args.batch_size, args.dataset)
                for i, data in enumerate(fed_data)]
 
     # Train based on type
     if args.hierarchy_type == 'vanilla':
         return train_vanilla_fl(clients, test_data, args)
+    elif args.hierarchy_type == 'cyclic-agglomerative':
+        # Special training logic for cyclic-agglomerative
+        edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
+        return train_cyclic_agglomerative(clients, test_data, edge_servers, hierarchical_server, args)
     else:
         # All hierarchical variants use same training logic
         edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
@@ -418,7 +261,6 @@ def main():
         results['method'] = args.hierarchy_type
 
     # Sauvegarde et visualisation
-    print("dddddddddd")
     save_results(results, args)
     print_final_results(results, args.hierarchy_type)
 

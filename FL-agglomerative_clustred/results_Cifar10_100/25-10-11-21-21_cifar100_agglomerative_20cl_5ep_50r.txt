@@ -1,0 +1,70 @@
+Hierarchical Aggregation Results: CIFAR100
+Method: agglomerative
+Configuration: 20 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 50 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-11T21:21:07.397854
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.371400
+Total Training Time: 5000.45s
+Average Time per Round: 100.01s
+Total Communication Cost: 2700
+Convergence Rounds: 50
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.010000, Time=113.39s, Comm=54
+Round  2: Accuracy=0.010000, Time=69.12s, Comm=54
+Round  3: Accuracy=0.066000, Time=69.28s, Comm=54
+Round  4: Accuracy=0.154800, Time=69.29s, Comm=54
+Round  5: Accuracy=0.184900, Time=69.31s, Comm=54
+Round  6: Accuracy=0.242700, Time=69.06s, Comm=54
+Round  7: Accuracy=0.282000, Time=69.40s, Comm=54
+Round  8: Accuracy=0.305500, Time=69.04s, Comm=54
+Round  9: Accuracy=0.316600, Time=68.94s, Comm=54
+Round 10: Accuracy=0.327300, Time=68.94s, Comm=54
+Round 11: Accuracy=0.340100, Time=69.03s, Comm=54
+Round 12: Accuracy=0.344100, Time=68.91s, Comm=54
+Round 13: Accuracy=0.349000, Time=69.19s, Comm=54
+Round 14: Accuracy=0.353400, Time=69.18s, Comm=54
+Round 15: Accuracy=0.359200, Time=69.13s, Comm=54
+Round 16: Accuracy=0.363600, Time=69.30s, Comm=54
+Round 17: Accuracy=0.363500, Time=69.28s, Comm=54
+Round 18: Accuracy=0.369100, Time=69.19s, Comm=54
+Round 19: Accuracy=0.374900, Time=69.09s, Comm=54
+Round 20: Accuracy=0.375000, Time=69.16s, Comm=54
+Round 21: Accuracy=0.377800, Time=69.16s, Comm=54
+Round 22: Accuracy=0.374700, Time=69.17s, Comm=54
+Round 23: Accuracy=0.376900, Time=69.05s, Comm=54
+Round 24: Accuracy=0.377400, Time=69.16s, Comm=54
+Round 25: Accuracy=0.376500, Time=69.31s, Comm=54
+Round 26: Accuracy=0.376300, Time=69.28s, Comm=54
+Round 27: Accuracy=0.376800, Time=69.20s, Comm=54
+Round 28: Accuracy=0.377200, Time=69.18s, Comm=54
+Round 29: Accuracy=0.377300, Time=69.24s, Comm=54
+Round 30: Accuracy=0.376200, Time=69.23s, Comm=54
+Round 31: Accuracy=0.375300, Time=69.19s, Comm=54
+Round 32: Accuracy=0.375600, Time=69.26s, Comm=54
+Round 33: Accuracy=0.376100, Time=69.21s, Comm=54
+Round 34: Accuracy=0.376100, Time=69.20s, Comm=54
+Round 35: Accuracy=0.375100, Time=69.16s, Comm=54
+Round 36: Accuracy=0.374000, Time=69.16s, Comm=54
+Round 37: Accuracy=0.373000, Time=69.13s, Comm=54
+Round 38: Accuracy=0.372100, Time=69.14s, Comm=54
+Round 39: Accuracy=0.371700, Time=1546.33s, Comm=54
+Round 40: Accuracy=0.370800, Time=70.51s, Comm=54
+Round 41: Accuracy=0.371200, Time=70.77s, Comm=54
+Round 42: Accuracy=0.371000, Time=70.77s, Comm=54
+Round 43: Accuracy=0.371100, Time=69.24s, Comm=54
+Round 44: Accuracy=0.371600, Time=69.18s, Comm=54
+Round 45: Accuracy=0.371400, Time=69.42s, Comm=54
+Round 46: Accuracy=0.371100, Time=72.10s, Comm=54
+Round 47: Accuracy=0.370900, Time=72.91s, Comm=54
+Round 48: Accuracy=0.371000, Time=71.28s, Comm=54
+Round 49: Accuracy=0.371000, Time=72.68s, Comm=54
+Round 50: Accuracy=0.371400, Time=72.60s, Comm=54

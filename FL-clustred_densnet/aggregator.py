@@ -3,7 +3,7 @@ import numpy as np
 
 
 class FedAvgAggregator:
-    """Standard FedAvg aggregator"""
+    """Standard FedAvg aggregator with support for transfer learning"""
 
     def __init__(self):
         self.name = "FedAvg"
@@ -13,28 +13,41 @@ class FedAvgAggregator:
             'aggregation_times': []
         }
 
-    def aggregate(self, client_updates, client_weights, global_model):
+    def aggregate(self, client_updates, client_weights, global_model, trainable_only=False):
         """
         Aggregate client updates using FedAvg
 
         Args:
-            client_updates: List of client weight deltas
+            client_updates: List of client weight updates
             client_weights: Data sizes for weighted averaging
             global_model: Current global model
+            trainable_only: If True, only aggregate trainable weights
 
         Returns:
             new_global_weights: Updated global model weights
         """
         start_time = time.time()
 
-        # Weighted average of updates
-        aggregated_update = weighted_average(client_updates, client_weights)
+        if trainable_only:
+            # Aggregate only trainable weights
+            aggregated_update = weighted_average(client_updates, client_weights)
 
-        # Apply update to global model
-        global_weights = global_model.get_weights()
-        new_global_weights = [
-            global_w + update for global_w, update in zip(global_weights, aggregated_update)
-        ]
+            # Get current global weights
+            from models import get_trainable_weights, set_trainable_weights
+            _, trainable_indices = get_trainable_weights(global_model)
+
+            # Apply aggregated trainable weights
+            set_trainable_weights(global_model, aggregated_update, trainable_indices)
+            new_global_weights = global_model.get_weights()
+        else:
+            # Standard aggregation (all weights)
+            aggregated_update = weighted_average(client_updates, client_weights)
+
+            # Apply update to global model
+            global_weights = global_model.get_weights()
+            new_global_weights = [
+                global_w + update for global_w, update in zip(global_weights, aggregated_update)
+            ]
 
         # Record metrics
         comm_cost = self.get_communication_cost(client_updates)
@@ -45,25 +58,56 @@ class FedAvgAggregator:
 
         return new_global_weights
 
-    def prepare_client_update(self, client_id, local_model, global_model):
+    def prepare_client_update(self, client_id, local_model, global_model, trainable_only=False):
         """
-        Prepare client update (weight delta)
+        Prepare client update (weight delta or trainable weights)
 
         Args:
             client_id: Client ID
             local_model: Trained local model
             global_model: Global model
+            trainable_only: If True, return only trainable weights
 
         Returns:
-            client_update: Weight delta (local - global)
+            client_update: Weight delta or trainable weights only
         """
-        local_weights = local_model.get_weights()
-        global_weights = global_model.get_weights()
+        if trainable_only:
+            from models import get_trainable_weights
+            trainable_weights, _ = get_trainable_weights(local_model)
+            return trainable_weights
+        else:
+            local_weights = local_model.get_weights()
+            global_weights = global_model.get_weights()
 
-        # Calculate weight delta
-        client_update = subtract_weights(local_weights, global_weights)
+            # Calculate weight delta
+            client_update = subtract_weights(local_weights, global_weights)
 
-        return client_update
+            return client_update
+
+    def aggregate_trainable_only(self, client_trainable_weights, client_data_sizes):
+        """
+        Aggregate only trainable weights from clients
+
+        Args:
+            client_trainable_weights: List of trainable weight lists from clients
+            client_data_sizes: Data sizes for weighted averaging
+
+        Returns:
+            aggregated_weights: Aggregated trainable weights
+        """
+        start_time = time.time()
+
+        # Weighted average
+        aggregated_weights = weighted_average(client_trainable_weights, client_data_sizes)
+
+        # Record metrics
+        comm_cost = self.get_communication_cost(client_trainable_weights)
+        agg_time = time.time() - start_time
+
+        self.history['communication_costs'].append(comm_cost)
+        self.history['aggregation_times'].append(agg_time)
+
+        return aggregated_weights
 
     def update_round(self):
         """Update round number"""

@@ -1,0 +1,30 @@
+Hierarchical Aggregation Results: MNIST
+Method: cyclic-agglomerative
+Configuration: 20 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 10 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-15T20:06:39.621301
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.978000
+Total Training Time: 188.74s
+Average Time per Round: 18.87s
+Total Communication Cost: 160
+Convergence Rounds: 10
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.758600, Time=50.60s, Comm=16
+Round  2: Accuracy=0.922300, Time=15.40s, Comm=16
+Round  3: Accuracy=0.954500, Time=14.89s, Comm=16
+Round  4: Accuracy=0.966400, Time=15.16s, Comm=16
+Round  5: Accuracy=0.966600, Time=15.78s, Comm=16
+Round  6: Accuracy=0.972000, Time=15.15s, Comm=16
+Round  7: Accuracy=0.977000, Time=15.05s, Comm=16
+Round  8: Accuracy=0.975300, Time=15.70s, Comm=16
+Round  9: Accuracy=0.979300, Time=15.01s, Comm=16
+Round 10: Accuracy=0.978000, Time=16.01s, Comm=16

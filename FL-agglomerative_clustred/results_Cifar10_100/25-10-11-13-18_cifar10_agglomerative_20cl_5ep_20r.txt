@@ -1,0 +1,40 @@
+Hierarchical Aggregation Results: CIFAR10
+Method: agglomerative
+Configuration: 20 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 20 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-11T13:18:56.043103
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.570600
+Total Training Time: 623.78s
+Average Time per Round: 31.19s
+Total Communication Cost: 440
+Convergence Rounds: 20
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.100000, Time=50.51s, Comm=22
+Round  2: Accuracy=0.100000, Time=29.96s, Comm=22
+Round  3: Accuracy=0.199100, Time=30.00s, Comm=22
+Round  4: Accuracy=0.354600, Time=30.04s, Comm=22
+Round  5: Accuracy=0.412300, Time=29.86s, Comm=22
+Round  6: Accuracy=0.456600, Time=29.95s, Comm=22
+Round  7: Accuracy=0.493900, Time=30.09s, Comm=22
+Round  8: Accuracy=0.508700, Time=30.07s, Comm=22
+Round  9: Accuracy=0.527300, Time=30.06s, Comm=22
+Round 10: Accuracy=0.550500, Time=30.16s, Comm=22
+Round 11: Accuracy=0.553600, Time=29.97s, Comm=22
+Round 12: Accuracy=0.560000, Time=30.04s, Comm=22
+Round 13: Accuracy=0.558400, Time=29.97s, Comm=22
+Round 14: Accuracy=0.562900, Time=30.08s, Comm=22
+Round 15: Accuracy=0.567000, Time=30.23s, Comm=22
+Round 16: Accuracy=0.560500, Time=30.15s, Comm=22
+Round 17: Accuracy=0.568200, Time=30.34s, Comm=22
+Round 18: Accuracy=0.574100, Time=30.52s, Comm=22
+Round 19: Accuracy=0.569800, Time=30.74s, Comm=22
+Round 20: Accuracy=0.570600, Time=31.05s, Comm=22

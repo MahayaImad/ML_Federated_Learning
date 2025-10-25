@@ -10,6 +10,41 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\FL-agglomerative_clustred\results\client_stats_mnist_improved-agglomerative_20251018_204023.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\FL-agglomerative_clustred\results\client_stats_mnist_random-clustered-ucb_20251019_215711.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\FL-agglomerative_clustred\results\client_stats_mnist_random-clustered_20251019_200114.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\FL-agglomerative_clustred\results\client_stats_mnist_vanilla_20251019_203707.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\FL-agglomerative_clustred\results_Cifar10_100\client_stats_cifar10_agglomerative_20251011_130315.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

@@ -1,0 +1,45 @@
+Hierarchical Aggregation Results: MNIST
+Method: adaptive-agglomerative
+Configuration: 30 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 25 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-18T21:21:34.788934
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.933300
+Total Training Time: 553.77s
+Average Time per Round: 22.15s
+Total Communication Cost: 642
+Convergence Rounds: 25
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.327900, Time=49.36s, Comm=24
+Round  2: Accuracy=0.533000, Time=21.21s, Comm=24
+Round  3: Accuracy=0.612600, Time=18.16s, Comm=24
+Round  4: Accuracy=0.666700, Time=15.51s, Comm=24
+Round  5: Accuracy=0.747900, Time=16.96s, Comm=30
+Round  6: Accuracy=0.762400, Time=15.29s, Comm=24
+Round  7: Accuracy=0.773900, Time=20.26s, Comm=24
+Round  8: Accuracy=0.787500, Time=18.85s, Comm=24
+Round  9: Accuracy=0.795600, Time=15.45s, Comm=24
+Round 10: Accuracy=0.868300, Time=22.80s, Comm=30
+Round 11: Accuracy=0.868500, Time=23.02s, Comm=24
+Round 12: Accuracy=0.867600, Time=25.31s, Comm=24
+Round 13: Accuracy=0.867300, Time=33.55s, Comm=24
+Round 14: Accuracy=0.867300, Time=25.58s, Comm=24
+Round 15: Accuracy=0.884800, Time=34.35s, Comm=34
+Round 16: Accuracy=0.882700, Time=17.75s, Comm=24
+Round 17: Accuracy=0.876800, Time=19.38s, Comm=24
+Round 18: Accuracy=0.881300, Time=18.14s, Comm=24
+Round 19: Accuracy=0.876800, Time=21.07s, Comm=24
+Round 20: Accuracy=0.944700, Time=22.92s, Comm=34
+Round 21: Accuracy=0.936700, Time=17.10s, Comm=24
+Round 22: Accuracy=0.936200, Time=16.49s, Comm=24
+Round 23: Accuracy=0.930100, Time=18.60s, Comm=24
+Round 24: Accuracy=0.931700, Time=20.65s, Comm=24
+Round 25: Accuracy=0.933300, Time=26.01s, Comm=34

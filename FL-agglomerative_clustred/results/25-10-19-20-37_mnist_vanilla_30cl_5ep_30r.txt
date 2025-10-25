@@ -1,0 +1,50 @@
+Hierarchical Aggregation Results: MNIST
+Method: vanilla
+Configuration: 30 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 30 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-19T20:37:26.922882
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.991200
+Total Training Time: 1966.68s
+Average Time per Round: 65.56s
+Total Communication Cost: 1800
+Convergence Rounds: 30
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.745800, Time=126.60s, Comm=60
+Round  2: Accuracy=0.887300, Time=50.92s, Comm=60
+Round  3: Accuracy=0.957400, Time=48.27s, Comm=60
+Round  4: Accuracy=0.966000, Time=49.85s, Comm=60
+Round  5: Accuracy=0.976200, Time=53.66s, Comm=60
+Round  6: Accuracy=0.977600, Time=55.72s, Comm=60
+Round  7: Accuracy=0.981500, Time=55.71s, Comm=60
+Round  8: Accuracy=0.983900, Time=47.26s, Comm=60
+Round  9: Accuracy=0.985100, Time=49.30s, Comm=60
+Round 10: Accuracy=0.985300, Time=50.56s, Comm=60
+Round 11: Accuracy=0.987100, Time=59.21s, Comm=60
+Round 12: Accuracy=0.987200, Time=65.31s, Comm=60
+Round 13: Accuracy=0.988900, Time=79.71s, Comm=60
+Round 14: Accuracy=0.988900, Time=66.96s, Comm=60
+Round 15: Accuracy=0.989400, Time=66.70s, Comm=60
+Round 16: Accuracy=0.989300, Time=65.20s, Comm=60
+Round 17: Accuracy=0.989600, Time=63.83s, Comm=60
+Round 18: Accuracy=0.989800, Time=69.27s, Comm=60
+Round 19: Accuracy=0.989800, Time=65.37s, Comm=60
+Round 20: Accuracy=0.990700, Time=63.65s, Comm=60
+Round 21: Accuracy=0.990400, Time=73.08s, Comm=60
+Round 22: Accuracy=0.990500, Time=78.93s, Comm=60
+Round 23: Accuracy=0.990400, Time=72.16s, Comm=60
+Round 24: Accuracy=0.991700, Time=73.10s, Comm=60
+Round 25: Accuracy=0.990900, Time=62.24s, Comm=60
+Round 26: Accuracy=0.991500, Time=64.46s, Comm=60
+Round 27: Accuracy=0.991700, Time=71.56s, Comm=60
+Round 28: Accuracy=0.991800, Time=69.45s, Comm=60
+Round 29: Accuracy=0.991600, Time=81.45s, Comm=60
+Round 30: Accuracy=0.991200, Time=67.16s, Comm=60

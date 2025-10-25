@@ -1,0 +1,50 @@
+Hierarchical Aggregation Results: MNIST
+Method: random-clustered-ucb
+Configuration: 30 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 30 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-19T21:57:24.501098
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.937400
+Total Training Time: 598.75s
+Average Time per Round: 19.96s
+Total Communication Cost: 678
+Convergence Rounds: 30
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.090100, Time=49.42s, Comm=26
+Round  2: Accuracy=0.090100, Time=35.61s, Comm=20
+Round  3: Accuracy=0.090100, Time=33.52s, Comm=20
+Round  4: Accuracy=0.090100, Time=30.26s, Comm=20
+Round  5: Accuracy=0.660500, Time=16.58s, Comm=32
+Round  6: Accuracy=0.660500, Time=17.08s, Comm=20
+Round  7: Accuracy=0.660500, Time=15.42s, Comm=20
+Round  8: Accuracy=0.660500, Time=17.46s, Comm=20
+Round  9: Accuracy=0.660500, Time=18.05s, Comm=20
+Round 10: Accuracy=0.814200, Time=16.28s, Comm=32
+Round 11: Accuracy=0.814200, Time=18.54s, Comm=20
+Round 12: Accuracy=0.814200, Time=17.10s, Comm=20
+Round 13: Accuracy=0.814200, Time=15.73s, Comm=20
+Round 14: Accuracy=0.814200, Time=18.49s, Comm=20
+Round 15: Accuracy=0.908700, Time=17.64s, Comm=32
+Round 16: Accuracy=0.908700, Time=18.42s, Comm=20
+Round 17: Accuracy=0.908700, Time=18.52s, Comm=20
+Round 18: Accuracy=0.908700, Time=17.08s, Comm=20
+Round 19: Accuracy=0.908700, Time=18.81s, Comm=20
+Round 20: Accuracy=0.945500, Time=16.25s, Comm=32
+Round 21: Accuracy=0.945500, Time=18.39s, Comm=20
+Round 22: Accuracy=0.945500, Time=18.80s, Comm=20
+Round 23: Accuracy=0.945500, Time=17.45s, Comm=20
+Round 24: Accuracy=0.945500, Time=15.78s, Comm=20
+Round 25: Accuracy=0.935100, Time=17.60s, Comm=32
+Round 26: Accuracy=0.935100, Time=15.97s, Comm=20
+Round 27: Accuracy=0.935100, Time=18.00s, Comm=20
+Round 28: Accuracy=0.935100, Time=15.70s, Comm=20
+Round 29: Accuracy=0.935100, Time=17.42s, Comm=20
+Round 30: Accuracy=0.937400, Time=17.37s, Comm=32

@@ -12,9 +12,10 @@ matplotlib.use('Agg')
 
 from data_preparation import prepare_federated_cifar10,prepare_federated_cifar100, prepare_federated_mnist, number_classes
 from hierarchical_server import (setup_vanilla_fl, setup_standard_hierarchy, setup_dropin_hierarchy,
-                                 setup_agglomerative_hierarchy, setup_cyclic_agglomerative_hierarchy)
+                                 setup_agglomerative_hierarchy, setup_cyclic_agglomerative_hierarchy, setup_random_clustered_hierarchy)
 from client import FederatedClient
-from train import train_vanilla_fl, train_hierarchical, train_cyclic_agglomerative
+from train import (train_vanilla_fl, train_hierarchical, train_cyclic_agglomerative,
+                   train_improved_agglomerative, train_adaptive_agglomerative, train_random_clustered)
 from utils import setup_gpu, save_results
 from config import VERBOSE, LOCAL_EPOCHS, COMMUNICATION_ROUNDS, BATCH_SIZE, CLIENTS, EDGE_SERVERS
 
@@ -42,7 +43,9 @@ Types d'entraînement disponibles:
 
     # Arguments obligatoires
     parser.add_argument('--hierarchy-type', type=str, required=True,
-                        choices=['vanilla', 'hierarchical', 'agglomerative', 'cyclic-agglomerative', 'drop-in', 'compare'],
+                        choices=['vanilla', 'hierarchical', 'agglomerative', 'cyclic-agglomerative', 'random-clustered',
+                                 'improved-agglomerative', 'adaptive-agglomerative', 'drop-in',  'random-clustered-ucb',
+                                 'vanilla-ucb', 'compare'],
                         help='Type d\'entraînement hiérarchique')
 
     parser.add_argument('--dataset', type=str, required=True,
@@ -74,6 +77,21 @@ Types d'entraînement disponibles:
     parser.add_argument('--iid', action='store_true',
                         help='Distribution IID des données (défaut: non-IID)')
 
+    parser.add_argument('--global-aggregation-interval', type=int, default=5,
+                        help='Rounds between global aggregations (default: 5)')
+
+    parser.add_argument('--selection-variance', type=float, default=0.2,
+                        help='Variance in client selection ratio (default: 0.2)')
+
+    parser.add_argument('--random-client-selection', action='store_true',
+                        help='Use random client selection instead of size-based')
+
+    parser.add_argument('--ucb-c', type=float, default=2.0,
+                        help='Paramètre exploration UCB (défaut: 2.0, plus élevé = plus d\'exploration)')
+
+    parser.add_argument('--freshness-lambda', type=float, default=0.2,
+                        help='Poids du bonus freshness UCB (défaut: 0.2)')
+
     parser.add_argument('--gpu', type=int, default=0,
                         help='GPU à utiliser (-1 pour CPU, défaut: 0)')
 
@@ -96,17 +114,8 @@ def setup_hierarchy(clients_data, args):
             clients_data, args.edge_servers, VERBOSE
         )
 
-    elif hierarchy_type == 'agglomerative':
+    elif hierarchy_type in ['agglomerative', 'improved-agglomerative', 'adaptive-agglomerative']:
         return setup_agglomerative_hierarchy(
-            clients_data,
-            args.js_threshold,
-            args.client_selection_ratio,
-            num_classes,
-            VERBOSE
-        )
-
-    elif hierarchy_type == 'cyclic-agglomerative':
-        return setup_cyclic_agglomerative_hierarchy(
             clients_data,
             args.js_threshold,
             args.client_selection_ratio,
@@ -119,6 +128,24 @@ def setup_hierarchy(clients_data, args):
             clients_data, args.edge_servers, VERBOSE
         )
 
+    elif hierarchy_type == 'random-clustered':
+        return setup_random_clustered_hierarchy(
+            clients_data,
+            args.js_threshold,
+            args.client_selection_ratio,
+            num_classes,
+            args.global_aggregation_interval,
+            VERBOSE
+        )
+    elif hierarchy_type == 'random-clustered-ucb':
+        return setup_random_clustered_hierarchy(
+            clients_data,
+            args.js_threshold,
+            args.client_selection_ratio,
+            num_classes,
+            args.global_aggregation_interval,
+            VERBOSE
+        )
     else:
         print(f"Error: Unknown hierarchy type '{hierarchy_type}'")
         return None, None
@@ -135,10 +162,13 @@ def compare_all_methods(fed_data, test_data, args):
     # Define methods to compare
     methods = [
         ('vanilla', 'vanilla'),
+        ('vanilla_ucb', 'vanilla-ucb'),
         ('hierarchical', 'hierarchical'),
         ('drop_in', 'drop-in'),
         ('agglomerative', 'agglomerative'),
-        ('cyclic_agglomerative', 'cyclic-agglomerative')
+        ('cyclic_agglomerative', 'cyclic-agglomerative'),
+        ('random_clustered', 'random-clustered'),
+        ('random_clustered_ucb', 'random-clustered-ucb')
     ]
 
     for method_name, hierarchy_type in methods:
@@ -171,10 +201,27 @@ def _train_single_method(fed_data, test_data, args):
     # Train based on type
     if args.hierarchy_type == 'vanilla':
         return train_vanilla_fl(clients, test_data, args)
+    elif args.hierarchy_type == 'vanilla-ucb':  # ✨ NOUVEAU
+        from train import train_vanilla_fl_ucb
+        return train_vanilla_fl_ucb(clients, test_data, args)
     elif args.hierarchy_type == 'cyclic-agglomerative':
         # Special training logic for cyclic-agglomerative
         edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
         return train_cyclic_agglomerative(clients, test_data, edge_servers, hierarchical_server, args)
+    elif args.hierarchy_type == 'improved-agglomerative':
+        edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
+        return train_improved_agglomerative(clients, test_data, edge_servers, hierarchical_server, args)
+
+    elif args.hierarchy_type == 'adaptive-agglomerative':
+        edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
+        return train_adaptive_agglomerative(clients, test_data, edge_servers, hierarchical_server, args)
+    elif args.hierarchy_type == 'random-clustered':
+        edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
+        return train_random_clustered(clients, test_data, edge_servers, hierarchical_server, args)
+    elif args.hierarchy_type == 'random-clustered-ucb':
+        edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)
+        from train import train_random_clustered_ucb
+        return train_random_clustered_ucb(clients, test_data, edge_servers, hierarchical_server, args)
     else:
         # All hierarchical variants use same training logic
         edge_servers, hierarchical_server = setup_hierarchy(fed_data, args)

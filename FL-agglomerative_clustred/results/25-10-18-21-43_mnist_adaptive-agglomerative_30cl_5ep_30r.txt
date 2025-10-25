@@ -1,0 +1,50 @@
+Hierarchical Aggregation Results: MNIST
+Method: adaptive-agglomerative
+Configuration: 30 clients
+Data Distribution: False iid
+Training: 5 local_epochs
+Training: 30 rounds
+Model: 64 batch_size
+Timestamp: 2025-10-18T21:43:27.504085
+============================================================
+
+RÉSULTATS FINAUX:
+------------------------------
+Final Accuracy: 0.887600
+Total Training Time: 673.70s
+Average Time per Round: 22.46s
+Total Communication Cost: 754
+Convergence Rounds: 30
+
+HISTORIQUE DÉTAILLÉ:
+------------------------------
+Round  1: Accuracy=0.140300, Time=42.83s, Comm=24
+Round  2: Accuracy=0.419300, Time=20.16s, Comm=24
+Round  3: Accuracy=0.595900, Time=15.91s, Comm=24
+Round  4: Accuracy=0.668600, Time=15.70s, Comm=24
+Round  5: Accuracy=0.707100, Time=17.85s, Comm=24
+Round  6: Accuracy=0.735400, Time=14.64s, Comm=24
+Round  7: Accuracy=0.746300, Time=17.00s, Comm=24
+Round  8: Accuracy=0.765800, Time=17.62s, Comm=24
+Round  9: Accuracy=0.773600, Time=16.41s, Comm=24
+Round 10: Accuracy=0.829600, Time=16.32s, Comm=30
+Round 11: Accuracy=0.837600, Time=15.17s, Comm=24
+Round 12: Accuracy=0.842400, Time=16.51s, Comm=24
+Round 13: Accuracy=0.844300, Time=16.10s, Comm=24
+Round 14: Accuracy=0.845700, Time=17.13s, Comm=24
+Round 15: Accuracy=0.848900, Time=14.83s, Comm=24
+Round 16: Accuracy=0.854800, Time=15.39s, Comm=24
+Round 17: Accuracy=0.856600, Time=23.03s, Comm=24
+Round 18: Accuracy=0.858700, Time=30.90s, Comm=24
+Round 19: Accuracy=0.859400, Time=28.11s, Comm=24
+Round 20: Accuracy=0.912400, Time=28.05s, Comm=30
+Round 21: Accuracy=0.911400, Time=26.61s, Comm=24
+Round 22: Accuracy=0.905400, Time=24.31s, Comm=24
+Round 23: Accuracy=0.895400, Time=24.44s, Comm=24
+Round 24: Accuracy=0.900600, Time=20.84s, Comm=24
+Round 25: Accuracy=0.903500, Time=32.75s, Comm=28
+Round 26: Accuracy=0.898700, Time=31.11s, Comm=28
+Round 27: Accuracy=0.903000, Time=32.00s, Comm=28
+Round 28: Accuracy=0.904700, Time=23.08s, Comm=24
+Round 29: Accuracy=0.899700, Time=24.62s, Comm=24
+Round 30: Accuracy=0.887600, Time=34.30s, Comm=34

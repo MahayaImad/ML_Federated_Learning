@@ -9,14 +9,17 @@ class EdgeServer:
         self.edge_id = edge_id
         self.client_ids = client_ids
         self.local_model = None
+        self.ucb_selector = None  # Sera initialisé dans training
+        self.cluster_label_distribution = None
+
 
     def set_global_model(self, weights):
-        """Reçoit les poids du modèle global"""
-        if self.local_model is None:
-            # Créer le modèle local lors de la première fois
-            pass
-        else:
-            self.local_model.set_weights(weights)
+            """Reçoit les poids du modèle global"""
+            if self.local_model is None:
+                # Créer le modèle local lors de la première fois
+                pass
+            else:
+                self.local_model.set_weights(weights)
 
 
 class HierarchicalServer:
@@ -200,6 +203,81 @@ def get_cyclic_partner(edge_id, round_num, num_edges):
     partner_id = (edge_id + offset) % num_edges
 
     return partner_id
+
+
+def setup_random_clustered_hierarchy(clients_data, js_threshold,
+                                     selection_ratio, num_classes,
+                                     global_aggregation_interval=5,
+                                     verbose=False):
+    """
+    Random Clustered Federated Learning
+    - Clustering basé sur la similarité des distributions (Jensen-Shannon divergence)
+    - Sélection aléatoire des clients intra-cluster à chaque round
+    - Agrégation au serveur central tous les N rounds
+
+    Args:
+        clients_data: Données des clients [(x_train, y_train), ...]
+        js_threshold: Seuil pour le clustering agglomératif
+        selection_ratio: Ratio de clients à sélectionner par cluster
+        num_classes: Nombre de classes dans le dataset
+        global_aggregation_interval: Fréquence d'agrégation au serveur central (défaut: 5)
+        verbose: Affichage détaillé
+
+    Returns:
+        edge_servers: Liste des edge servers (clusters)
+        hierarchical_server: Serveur hiérarchique
+    """
+    # Étape 1: Calcul des histogrammes de labels
+    client_histograms = []
+    for x_train, y_train in clients_data:
+        labels = np.argmax(y_train, axis=1)
+        histogram = np.zeros(num_classes)
+        unique, counts = np.unique(labels, return_counts=True)
+        histogram[unique] = counts
+        histogram = histogram / histogram.sum()
+        client_histograms.append(histogram)
+
+    # Étape 2: Construction de la matrice de distance
+    n_clients = len(client_histograms)
+    js_matrix = np.zeros((n_clients, n_clients))
+
+    for i in range(n_clients):
+        for j in range(i + 1, n_clients):
+            js_dist = jensen_shannon_distance(client_histograms[i],
+                                              client_histograms[j])
+            js_matrix[i, j] = js_matrix[j, i] = js_dist
+
+    if verbose:
+        _print_js_statistics(js_matrix)
+
+    # Étape 3: Clustering agglomératif
+    clustering = AgglomerativeClustering(
+        n_clusters=None,
+        metric='precomputed',
+        linkage='average',
+        distance_threshold=js_threshold
+    )
+    cluster_labels = clustering.fit_predict(js_matrix)
+
+    # Étape 4: Création des edge servers (clusters)
+    clusters = {}
+    for client_idx, cluster_id in enumerate(cluster_labels):
+        clusters.setdefault(cluster_id, []).append(client_idx)
+
+    edge_servers = []
+    for edge_id, client_ids in enumerate(clusters.values()):
+        # Pour cette méthode, on stocke TOUS les clients du cluster
+        # La sélection aléatoire se fera à chaque round
+        edge_servers.append(EdgeServer(edge_id, client_ids))
+
+        if verbose:
+            print(f"  Cluster {edge_id}: {len(client_ids)} clients : {client_ids}")
+
+    if verbose:
+        print(f"  Total clusters: {len(clusters)}, JS threshold: {js_threshold}")
+        print(f"  Selection ratio: {selection_ratio}, Global aggregation every {global_aggregation_interval} rounds")
+
+    return edge_servers, HierarchicalServer(edge_servers)
 
 def _print_js_statistics(js_matrix):
     """Helper to print JS distance statistics"""

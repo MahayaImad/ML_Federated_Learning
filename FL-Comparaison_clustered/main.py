@@ -17,6 +17,7 @@ from client import FederatedClient
 from fedavg import train_fedavg
 from fedprox import train_fedprox
 from ifca import train_ifca
+from fedloss import train_fedloss
 from agglomerative_inter import train_agglomerative_inter
 from agglomerative_global import train_agglomerative_global
 from utils import save_results, save_client_stats_csv, plot_comparison, create_summary_table
@@ -35,7 +36,8 @@ def parse_arguments():
                         help='Dataset to use')
 
     parser.add_argument('--method', type=str, required=True,
-                        choices=['fedavg', 'fedprox', 'ifca', 'agglomerative-inter', 'agglomerative-global', 'all'],
+                        choices=['fedavg', 'fedprox', 'ifca', 'fedloss', 'agglomerative-inter', 'agglomerative-global',
+                                 'all'],
                         help='FL method to use (or "all" to compare all methods)')
 
     # Optional arguments
@@ -119,6 +121,8 @@ def run_method(method_name, clients, test_data, args):
         results = train_fedprox(clients, test_data, args)
     elif method_name == 'ifca':
         results = train_ifca(clients, test_data, args)
+    elif method_name == 'fedloss':
+        results = train_fedloss(clients, test_data, args)
     elif method_name == 'agglomerative-inter':
         # Extract client data for clustering
         clients_data = [(c.x_train, c.y_train) for c in clients]
@@ -187,7 +191,7 @@ def main():
 
     if args.method == 'all':
         # Compare all methods
-        methods = ['fedavg', 'fedprox', 'ifca', 'agglomerative-inter', 'agglomerative-global']
+        methods = ['fedavg', 'fedprox', 'ifca', 'fedloss', 'agglomerative-inter', 'agglomerative-global']
 
         for method in methods:
             # Reset clients for each method

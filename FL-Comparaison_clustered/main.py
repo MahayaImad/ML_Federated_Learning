@@ -20,6 +20,7 @@ from ifca import train_ifca
 from fedloss import train_fedloss
 from agglomerative_inter import train_agglomerative_inter
 from agglomerative_global import train_agglomerative_global
+from anti_clustering import train_anticlustering
 from utils import save_results, save_client_stats_csv, plot_comparison, create_summary_table
 
 # Désactiver warnings TF
@@ -37,7 +38,7 @@ def parse_arguments():
 
     parser.add_argument('--method', type=str, required=True,
                         choices=['fedavg', 'fedprox', 'ifca', 'fedloss', 'agglomerative-inter', 'agglomerative-global',
-                                 'all'],
+                                 'anticlustering', 'all'],
                         help='FL method to use (or "all" to compare all methods)')
 
     # Optional arguments
@@ -131,6 +132,10 @@ def run_method(method_name, clients, test_data, args):
         # Extract client data for clustering
         clients_data = [(c.x_train, c.y_train) for c in clients]
         results = train_agglomerative_global(clients, clients_data, test_data, args)
+    elif method_name == 'anticlustering':
+        # Extract client data for clustering
+        clients_data = [(c.x_train, c.y_train) for c in clients]
+        results = train_anticlustering(clients, clients_data, test_data, args)
     else:
         raise ValueError(f"Unknown method: {method_name}")
 

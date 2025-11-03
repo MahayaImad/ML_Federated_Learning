@@ -14,6 +14,7 @@ from communication_cost import CommunicationTracker
 from client_selection import select_clients_in_clusters, jensen_shannon_distance
 from fedavg import fedavg_aggregate
 from config import VERBOSE
+from config import get_dataset_config
 
 
 def train_anticlustering(clients, clients_data, test_data, args):
@@ -228,7 +229,7 @@ def train_anticlustering(clients, clients_data, test_data, args):
 
     # Print final diversity and performance analysis
     print_final_diversity_analysis(diversity_history, clusters, clients_data, num_classes, ignored_clients)
-    print_final_cluster_analysis(cluster_performance_history, clusters, args)
+    print_final_cluster_analysis(cluster_performance_history, clusters, clients_data, args)
 
     return {
         'accuracy_history': accuracy_history,
@@ -562,7 +563,7 @@ def analyze_final_cluster_performances(cluster_performance_history, clusters):
     return analysis
 
 
-def print_final_cluster_analysis(cluster_performance_history, clusters, args):
+def print_final_cluster_analysis(cluster_performance_history, clusters, clients_data, args):
     """
     Print final analysis of individual cluster performances
     """
@@ -576,6 +577,7 @@ def print_final_cluster_analysis(cluster_performance_history, clusters, args):
         return
 
     analysis = analyze_final_cluster_performances(cluster_performance_history, clusters)
+    config = get_dataset_config(args.dataset)
 
     if not analysis:
         print("No cluster analysis data available.")
@@ -629,7 +631,7 @@ def print_final_cluster_analysis(cluster_performance_history, clusters, args):
             for client_id in client_ids:
                 _, y_train = clients_data[client_id]
                 labels = np.argmax(y_train, axis=1)
-                histogram = np.zeros(num_classes)
+                histogram = np.zeros(config['num_classes'])
                 unique, counts = np.unique(labels, return_counts=True)
                 histogram[unique] = counts
                 histogram = histogram / histogram.sum()
